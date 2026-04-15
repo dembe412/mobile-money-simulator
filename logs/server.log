@@ -1,0 +1,36 @@
+2026-04-12 03:43:56,222 - __main__ - INFO - ======================================================================
+2026-04-12 03:43:56,224 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-12 03:43:56,226 - __main__ - INFO - ======================================================================
+2026-04-12 03:43:56,227 - __main__ - INFO - Server ID: server_1
+2026-04-12 03:43:56,227 - __main__ - INFO - Server Name: Primary Server
+2026-04-12 03:43:56,228 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-12 03:43:56,229 - __main__ - INFO - Database: localhost:5432/mobile_money_system
+2026-04-12 03:43:56,229 - __main__ - INFO - Environment: development
+2026-04-12 03:43:56,230 - __main__ - INFO - ======================================================================
+
+2026-04-12 03:44:47,199 - __main__ - INFO - ======================================================================
+2026-04-12 03:44:47,199 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-12 03:44:47,199 - __main__ - INFO - ======================================================================
+2026-04-12 03:44:47,200 - __main__ - INFO - Server ID: server_1
+2026-04-12 03:44:47,200 - __main__ - INFO - Server Name: Primary Server
+2026-04-12 03:44:47,200 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-12 03:44:47,201 - __main__ - INFO - Database: localhost:5432/mobile_money_system
+2026-04-12 03:44:47,201 - __main__ - INFO - Environment: development
+2026-04-12 03:44:47,201 - __main__ - INFO - ======================================================================
+
+2026-04-12 03:44:49,154 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-12 03:44:51,074 - src.api.routes - ERROR - Database initialization failed: (psycopg.OperationalError) connection failed: connection to server at "127.0.0.1", port 5432 failed: FATAL:  database "mobile_money_system" does not exist
+Multiple connection attempts failed. All failures were:
+- host: 'localhost', port: 5432, hostaddr: '::1': connection failed: connection to server at "::1", port 5432 failed: FATAL:  database "mobile_money_system" does not exist
+- host: 'localhost', port: 5432, hostaddr: '127.0.0.1': connection failed: connection to server at "127.0.0.1", port 5432 failed: FATAL:  database "mobile_money_system" does not exist
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-04-12 03:47:25,924 - __main__ - INFO - ======================================================================
+2026-04-12 03:47:25,925 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-12 03:47:25,926 - __main__ - INFO - ======================================================================
+2026-04-12 03:47:25,927 - __main__ - INFO - Server ID: server_1
+2026-04-12 03:47:25,927 - __main__ - INFO - Server Name: Primary Server
+2026-04-12 03:47:25,928 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-12 03:47:25,928 - __main__ - INFO - Database: localhost:5432/mobile_money_system
+2026-04-12 03:47:25,928 - __main__ - INFO - Environment: development
+2026-04-12 03:47:25,929 - __main__ - INFO - ======================================================================
+

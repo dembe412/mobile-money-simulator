@@ -1,0 +1,141 @@
+version: '3.8'
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: mobile_money_db
+    environment:
+      POSTGRES_DB: mobile_money_system
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+    - 5432:5432
+    volumes:
+    - postgres_data:/var/lib/postgresql/data
+    networks:
+    - mobile_money_network
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - pg_isready -U postgres
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  redis:
+    image: redis:7-alpine
+    container_name: mobile_money_redis
+    ports:
+    - 6379:6379
+    volumes:
+    - redis_data:/data
+    networks:
+    - mobile_money_network
+    healthcheck:
+      test:
+      - CMD
+      - redis-cli
+      - ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  server_1:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: mobile_money_server_1
+    environment:
+      SERVER_ID: server_1
+      SERVER_NAME: Server 1
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: '8001'
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: mobile_money_system
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      APP_ENV: development
+      APP_DEBUG: 'true'
+    ports:
+    - 8001:8001
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+    - mobile_money_network
+    volumes:
+    - ./:/app
+    - ./logs:/app/logs
+    command: python main.py
+  server_2:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: mobile_money_server_2
+    environment:
+      SERVER_ID: server_2
+      SERVER_NAME: Server 2
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: '8002'
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: mobile_money_system
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      APP_ENV: development
+      APP_DEBUG: 'true'
+    ports:
+    - 8002:8002
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+    - mobile_money_network
+    volumes:
+    - ./:/app
+    - ./logs:/app/logs
+    command: python main.py
+  server_3:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: mobile_money_server_3
+    environment:
+      SERVER_ID: server_3
+      SERVER_NAME: Server 3
+      SERVER_HOST: 0.0.0.0
+      SERVER_PORT: '8003'
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: mobile_money_system
+      REDIS_HOST: redis
+      REDIS_PORT: '6379'
+      APP_ENV: development
+      APP_DEBUG: 'true'
+    ports:
+    - 8003:8003
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+    - mobile_money_network
+    volumes:
+    - ./:/app
+    - ./logs:/app/logs
+    command: python main.py
+volumes:
+  postgres_data: {}
+  redis_data: {}
+networks:
+  mobile_money_network:
+    driver: bridge
