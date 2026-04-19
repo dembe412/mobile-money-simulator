@@ -48,7 +48,7 @@ class HeartbeatWorker:
         """Start the heartbeat worker"""
         self.running = True
         self.task = asyncio.create_task(self._heartbeat_loop())
-        logger.info(f"Heartbeat worker started (interval={self.interval_sec}s)")
+        logger.info(f"[OK] Heartbeat worker started (interval={self.interval_sec}s, timeout={self.timeout_sec}s)")
     
     async def stop(self):
         """Stop the heartbeat worker"""
@@ -59,7 +59,7 @@ class HeartbeatWorker:
                 await self.task
             except asyncio.CancelledError:
                 pass
-        logger.info("Heartbeat worker stopped")
+        logger.info("[OK] Heartbeat worker stopped")
     
     async def _heartbeat_loop(self):
         """Main loop that sends heartbeats periodically"""
@@ -85,13 +85,24 @@ class HeartbeatWorker:
         heartbeat_msg = self.gossip_node.create_heartbeat_message(peer_list=peers)
         msg_dict = heartbeat_msg.to_dict()
         
+        logger.debug(f"Sending heartbeat to {len(peers)} peer(s)")
+        
         # Send to each peer (non-blocking, parallel)
         tasks = [
             self._send_heartbeat_to_peer(peer.server_id, peer.host, peer.port, msg_dict)
             for peer in peers
         ]
         
-        await asyncio.gather(*tasks, return_exceptions=True)
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+        
+        # Count successes/failures
+        successes = sum(1 for r in results if r is True)
+        failures = len(results) - successes
+        
+        if failures > 0:
+            logger.warning(f"Heartbeat cycle: {successes} sent, {failures} FAILED out of {len(peers)} peers")
+        else:
+            logger.debug(f"Heartbeat cycle: All {len(peers)} peers reachable [OK]")
     
     async def _send_heartbeat_to_peer(
         self,
@@ -99,7 +110,7 @@ class HeartbeatWorker:
         host: str,
         port: int,
         message: dict
-    ):
+    ) -> bool:
         """
         Send heartbeat to a single peer
         
@@ -108,6 +119,9 @@ class HeartbeatWorker:
             host: Peer hostname
             port: Peer port
             message: Gossip message to send
+            
+        Returns:
+            True if successful, False otherwise
         """
         url = f"http://{host}:{port}/api/v1/gossip/heartbeat"
         
@@ -120,18 +134,22 @@ class HeartbeatWorker:
                     self.gossip_node.peers[peer_id].last_contact = datetime.utcnow()
                     self.gossip_node.peers[peer_id].status = "online"
                     self.gossip_node.peers[peer_id].error_count = 0
-                    logger.debug(f"Heartbeat sent to {peer_id} successfully")
+                    logger.debug(f"  {peer_id}: heartbeat OK (200)")
+                    return True
                 else:
-                    logger.warning(f"Heartbeat to {peer_id} returned {response.status_code}")
+                    logger.warning(f"  {peer_id}: heartbeat failed ({response.status_code})")
                     self._handle_peer_error(peer_id)
+                    return False
         
         except asyncio.TimeoutError:
-            logger.warning(f"Heartbeat to {peer_id} timed out")
+            logger.warning(f"  {peer_id}: heartbeat TIMEOUT after {self.timeout_sec}s")
             self._handle_peer_error(peer_id)
+            return False
         
         except Exception as e:
-            logger.warning(f"Heartbeat to {peer_id} failed: {e}")
+            logger.warning(f"  {peer_id}: heartbeat ERROR: {type(e).__name__}: {str(e)[:80]}")
             self._handle_peer_error(peer_id)
+            return False
     
     def _handle_peer_error(self, peer_id: str):
         """Handle failed heartbeat to peer"""
@@ -142,7 +160,9 @@ class HeartbeatWorker:
             # Mark as offline after 3 consecutive failures
             if peer.error_count >= 3:
                 peer.status = "offline"
-                logger.warning(f"Peer {peer_id} marked offline (error_count={peer.error_count})")
+                logger.warning(f"[WARN] Peer {peer_id} marked OFFLINE (consecutive failures: {peer.error_count})")
+            else:
+                logger.debug(f"  Peer {peer_id} error count: {peer.error_count}/3")
     
     async def _update_server_status(self):
         """Update ServerStatus table with current gossip state"""
@@ -165,6 +185,7 @@ class HeartbeatWorker:
                         status="online",
                     )
                     db.add(status)
+                    logger.info(f"[NEW] ServerStatus entry created for {self.gossip_node.server_id}")
                 
                 # Update status
                 status.status = "online"
@@ -183,7 +204,14 @@ class HeartbeatWorker:
                 status.pending_events_count = len(self.gossip_node.pending_event_ids)
                 
                 db.commit()
-                logger.debug(f"Updated ServerStatus for {self.gossip_node.server_id}")
+                
+                # Log status update summary
+                healthy_count = len(healthy_peers)
+                total_peers = len(self.gossip_node.get_all_peers())
+                logger.debug(
+                    f"[STATUS] {healthy_count}/{total_peers} peers healthy, "
+                    f"lag={max_lag:.1f}s, pending_events={status.pending_events_count}"
+                )
             
             finally:
                 db.close()

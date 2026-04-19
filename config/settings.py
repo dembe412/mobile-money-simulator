@@ -32,15 +32,21 @@ class DatabaseConfig(BaseSettings):
         Construct database URL with environment-specific database name.
         Uses psycopg2 driver with URL-encoded password to handle special characters.
         """
-        # Get APP_ENV to build environment-specific database name
+        # Use DB_NAME from .env if explicitly set, otherwise use environment-specific naming
         from config.settings import app_config
         
-        # Map environment to database name
-        env_db_name = self._get_db_name_for_env(app_config.APP_ENV)
+        # Check if DB_NAME is explicitly set in .env (non-default)
+        default_db_name = "mobile_money_system"
+        if self.DB_NAME != default_db_name:
+            # Use the explicitly configured DB_NAME from .env
+            db_name = self.DB_NAME
+        else:
+            # Use environment-specific database name
+            db_name = self._get_db_name_for_env(app_config.APP_ENV)
         
         # Use psycopg2 driver with URL-encoded password to handle special characters
         encoded_password = quote(self.DB_PASSWORD, safe='')
-        return f"postgresql+psycopg2://{self.DB_USER}:{encoded_password}@{self.DB_HOST}:{self.DB_PORT}/{env_db_name}"
+        return f"postgresql+psycopg2://{self.DB_USER}:{encoded_password}@{self.DB_HOST}:{self.DB_PORT}/{db_name}"
     
     @staticmethod
     def _get_db_name_for_env(app_env: str) -> str:

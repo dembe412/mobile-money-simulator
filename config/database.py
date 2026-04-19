@@ -60,11 +60,14 @@ def init_db(force_reset=False):
     Uses environment-specific database configured in APP_ENV.
     
     This is idempotent - safe to call multiple times.
+    Automatically handles schema migrations (adds missing columns).
     
     Args:
         force_reset: If True, drop all tables and recreate. Default False (idempotent)
     """
     from src.models import Base
+    from config.migrations import check_and_add_missing_columns, verify_schema
+    
     try:
         logger.info(f"Initializing database for environment: {app_config.APP_ENV}")
         db_name = get_db_name_for_env(app_config.APP_ENV)
@@ -75,7 +78,15 @@ def init_db(force_reset=False):
         existing_tables = inspector.get_table_names()
         
         if existing_tables and not force_reset:
-            logger.info(f"Database already initialized. Found {len(existing_tables)} existing tables. Skipping initialization.")
+            logger.info(f"Database already initialized. Found {len(existing_tables)} existing tables.")
+            logger.info("Running migration check to add any missing columns...")
+            check_and_add_missing_columns(engine)
+            
+            # Verify schema integrity
+            if verify_schema(engine):
+                logger.info("✓ Schema verification successful")
+            else:
+                logger.warning("Schema verification found issues - some columns may be missing")
             return
         
         if force_reset and existing_tables:
