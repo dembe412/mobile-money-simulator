@@ -722,7 +722,7 @@ class AccountOperations:
             )
             
             to_transaction = Transaction(
-                request_id=request_id,
+                request_id=f"{request_id}_to",
                 account_id=to_account.account_id,
                 phone_number=to_phone_number,
                 transaction_type="transfer_in",
