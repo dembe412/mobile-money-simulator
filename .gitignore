@@ -71,3 +71,5 @@ Thumbs.db
 *.pid
 *.sock
 logs/server.log
+logs/server.log
+*.log

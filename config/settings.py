@@ -2,7 +2,7 @@
 Configuration management for Mobile Money System
 """
 from pydantic_settings import BaseSettings
-from pydantic import ConfigDict
+from pydantic import ConfigDict, field_validator
 from typing import List, Dict, Optional
 from urllib.parse import quote
 import os
@@ -19,7 +19,7 @@ class ServerConfig(BaseSettings):
 
 
 class DatabaseConfig(BaseSettings):
-    """PostgreSQL configuration"""
+    """PostgreSQL configuration with environment-specific database selection"""
     DB_HOST: str = os.getenv("DB_HOST", "localhost")
     DB_PORT: int = int(os.getenv("DB_PORT", "5432"))
     DB_USER: str = os.getenv("DB_USER", "postgres")
@@ -28,9 +28,39 @@ class DatabaseConfig(BaseSettings):
     
     @property
     def DATABASE_URL(self) -> str:
+        """
+        Construct database URL with environment-specific database name.
+        Uses psycopg2 driver with URL-encoded password to handle special characters.
+        """
+        # Get APP_ENV to build environment-specific database name
+        from config.settings import app_config
+        
+        # Map environment to database name
+        env_db_name = self._get_db_name_for_env(app_config.APP_ENV)
+        
         # Use psycopg2 driver with URL-encoded password to handle special characters
         encoded_password = quote(self.DB_PASSWORD, safe='')
-        return f"postgresql+psycopg2://{self.DB_USER}:{encoded_password}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        return f"postgresql+psycopg2://{self.DB_USER}:{encoded_password}@{self.DB_HOST}:{self.DB_PORT}/{env_db_name}"
+    
+    @staticmethod
+    def _get_db_name_for_env(app_env: str) -> str:
+        """
+        Get database name for the given environment.
+        
+        Args:
+            app_env: Application environment (development, test, staging, production)
+            
+        Returns:
+            Environment-specific database name
+        """
+        base_name = "mobile_money"
+        # Only append env suffix for non-production environments
+        if app_env in ("test", "staging"):
+            return f"{base_name}_{app_env}"
+        elif app_env == "development":
+            return f"{base_name}_dev"
+        else:  # production
+            return base_name
     
     ECHO_SQL: bool = os.getenv("ECHO_SQL", "false").lower() == "true"
     
@@ -129,6 +159,24 @@ class AppConfig(BaseSettings):
     APP_DEBUG: bool = os.getenv("APP_ENV", "development") == "development"
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
     TIMEZONE: str = os.getenv("TIMEZONE", "Africa/Nairobi")
+    
+    @field_validator("APP_ENV")
+    @classmethod
+    def validate_app_env(cls, v: str) -> str:
+        """Validate that APP_ENV is one of the allowed values"""
+        allowed_envs = {"development", "test", "staging", "production"}
+        if v not in allowed_envs:
+            raise ValueError(
+                f"APP_ENV must be one of {allowed_envs}, got '{v}'. "
+                f"Set APP_ENV environment variable to a valid value."
+            )
+        return v
+    
+    @property
+    def PRESERVE_DATA(self) -> bool:
+        """Determine if data should be preserved based on environment"""
+        # Only preserve data in staging and production
+        return self.APP_ENV in ("staging", "production")
     
     model_config = ConfigDict(env_file=".env", extra="ignore")
 

@@ -12,6 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent))
 
 from config.settings import server_config, app_config, database_config
+from config.database import init_db, SessionLocal
 from src.api.routes import app
 
 # Configure logging
@@ -35,9 +36,24 @@ def main():
     logger.info(f"Server ID: {server_config.SERVER_ID}")
     logger.info(f"Server Name: {server_config.SERVER_NAME}")
     logger.info(f"Server Address: {server_config.SERVER_HOST}:{server_config.SERVER_PORT}")
-    logger.info(f"Database: {database_config.DB_HOST}:{database_config.DB_PORT}/{database_config.DB_NAME}")
+    logger.info(f"Database: {database_config.DB_HOST}:{database_config.DB_PORT}")
     logger.info(f"Environment: {app_config.APP_ENV}")
     logger.info("=" * 70 + "\n")
+    
+    # Initialize database
+    logger.info("Initializing database...")
+    init_db()
+    
+    # Seed initial data (idempotent - safe to call multiple times)
+    logger.info("Seeding initial data...")
+    try:
+        from src.core.seed_data import run_all_seeds
+        db = SessionLocal()
+        seed_results = run_all_seeds(db)
+        db.close()
+        logger.info(f"Seeding results: {seed_results}")
+    except Exception as e:
+        logger.warning(f"Seeding skipped or failed (non-critical): {e}")
     
     # Uvicorn requires an import string when reload is enabled.
     # IMPORTANT: Reload is DISABLED by default to prevent data loss from dropping tables

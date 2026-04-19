@@ -1331,3 +1331,9 @@ DETAIL:  Key (account_id)=(752235731) is not present in table "accounts".
 2026-04-19 18:52:34,871 - src.api.routes - INFO - Starting Mobile Money Server: server_1
 2026-04-19 18:52:35,032 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
 2026-04-19 18:52:35,033 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 20:00:25,953 - src.api.routes - INFO - Account created: 0752235731
+2026-04-19 20:01:28,552 - src.core.idempotency - INFO - Request server_2_1776607288512_1f0666f9_0752235731 created for deposit
+2026-04-19 20:01:28,642 - src.core.operations - INFO - Lock acquired for account 17, request server_2_1776607288512_1f0666f9_0752235731
+2026-04-19 20:01:28,891 - src.core.operations - INFO - Deposit successful: 0752235731, Amount: 100000.0, Balance: 100000.0000
+2026-04-19 20:01:28,920 - src.core.operations - INFO - Lock released for account 17
+2026-04-19 20:01:29,041 - src.core.idempotency - INFO - Request server_2_1776607288512_1f0666f9_0752235731 updated to status completed

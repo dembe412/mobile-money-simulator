@@ -1,13 +1,32 @@
 """
-Database connection and session management
+Database connection and session management with environment-specific database support
 """
 from sqlalchemy import create_engine, event, text, inspect
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import NullPool
 import logging
-from config.settings import database_config
+from config.settings import database_config, app_config
 
 logger = logging.getLogger(__name__)
+
+
+def get_db_name_for_env(env: str) -> str:
+    """
+    Get database name for the given environment.
+    
+    Args:
+        env: Application environment (development, test, staging, production)
+        
+    Returns:
+        Environment-specific database name
+    """
+    base_name = "mobile_money"
+    if env in ("test", "staging"):
+        return f"{base_name}_{env}"
+    elif env == "development":
+        return f"{base_name}_dev"
+    else:  # production
+        return base_name
 
 # Create database engine
 engine = create_engine(
@@ -37,13 +56,20 @@ def set_sqlite_pragma(dbapi_conn, connection_record):
 
 def init_db(force_reset=False):
     """
-    Initialize database (create all tables if they don't exist)
+    Initialize database (create all tables if they don't exist).
+    Uses environment-specific database configured in APP_ENV.
+    
+    This is idempotent - safe to call multiple times.
     
     Args:
         force_reset: If True, drop all tables and recreate. Default False (idempotent)
     """
     from src.models import Base
     try:
+        logger.info(f"Initializing database for environment: {app_config.APP_ENV}")
+        db_name = get_db_name_for_env(app_config.APP_ENV)
+        logger.info(f"Using database: {db_name}")
+        
         # Check if tables already exist (idempotent behavior)
         inspector = inspect(engine)
         existing_tables = inspector.get_table_names()
@@ -89,7 +115,7 @@ def init_db(force_reset=False):
         
         # Create all tables fresh (creates only non-existent tables)
         Base.metadata.create_all(bind=engine)
-        logger.info("Database initialized successfully")
+        logger.info(f"Database initialized successfully for environment '{app_config.APP_ENV}'")
     except Exception as e:
         logger.error(f"Database initialization error: {e}")
         raise
