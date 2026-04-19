@@ -249,3 +249,958 @@ DETAIL:  Key (account_id)=(752235731) is not present in table "accounts".
 2026-04-19 16:43:40,334 - config.database - INFO - Dropped all existing tables and related objects
 2026-04-19 16:43:40,947 - config.database - INFO - Database initialized successfully
 2026-04-19 16:43:40,947 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 16:48:40,616 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:48:40,790 - config.database - INFO - Dropped all existing tables and related objects
+2026-04-19 16:48:41,514 - config.database - INFO - Database initialized successfully
+2026-04-19 16:48:41,515 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 16:51:44,701 - __main__ - INFO - ======================================================================
+2026-04-19 16:51:44,710 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 16:51:44,715 - __main__ - INFO - ======================================================================
+2026-04-19 16:51:44,716 - __main__ - INFO - Server ID: server_1
+2026-04-19 16:51:44,717 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 16:51:44,719 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 16:51:44,724 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 16:51:44,726 - __main__ - INFO - Environment: development
+2026-04-19 16:51:44,727 - __main__ - INFO - ======================================================================
+
+2026-04-19 16:51:49,153 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:51:49,429 - config.database - INFO - Dropped all existing tables and related objects
+2026-04-19 16:51:50,032 - config.database - INFO - Database initialized successfully
+2026-04-19 16:51:50,033 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 16:52:25,470 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:25,832 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:26,236 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:26,689 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:27,105 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:27,512 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:27,927 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:28,289 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:28,332 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:52:28,452 - config.database - INFO - Dropped all existing tables and related objects
+2026-04-19 16:52:28,751 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:28,919 - config.database - INFO - Database initialized successfully
+2026-04-19 16:52:28,919 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 16:52:29,157 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:29,518 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:29,932 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:30,343 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:30,705 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:31,121 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:31,533 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:31,636 - src.api.routes - INFO - Account created: 0799999999
+2026-04-19 16:52:31,897 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:32,313 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:32,725 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:33,085 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:33,498 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:33,910 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:34,324 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:34,681 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:35,098 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:35,509 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:35,919 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:36,332 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:36,693 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:36,941 - src.core.idempotency - INFO - Request server_1_1776595956863_556e4bb1_0799999999 created for deposit
+2026-04-19 16:52:37,031 - src.core.operations - INFO - Lock acquired for account 1, request server_1_1776595956863_556e4bb1_0799999999
+2026-04-19 16:52:37,141 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:37,295 - src.core.operations - INFO - Deposit successful: 0799999999, Amount: 50000.0, Balance: 1050000.0000
+2026-04-19 16:52:37,320 - src.core.operations - INFO - Lock released for account 1
+2026-04-19 16:52:37,423 - src.core.idempotency - INFO - Request server_1_1776595956863_556e4bb1_0799999999 updated to status completed
+2026-04-19 16:52:37,560 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:37,982 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:38,343 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:38,758 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:39,200 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:39,675 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:40,096 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:40,517 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:40,924 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:41,336 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:41,747 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:42,157 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:42,568 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:42,980 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:43,391 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:43,803 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:44,216 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:44,630 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:44,992 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:45,290 - src.core.idempotency - INFO - Request server_1_1776595965209_97b7993a_0799999999 created for withdraw
+2026-04-19 16:52:45,378 - src.core.operations - INFO - Lock acquired for account 1, request server_1_1776595965209_97b7993a_0799999999
+2026-04-19 16:52:45,424 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:45,826 - src.core.operations - INFO - Withdrawal successful: 0799999999, Amount: 25000.0, Balance: 1025000.0000
+2026-04-19 16:52:45,850 - src.core.operations - INFO - Lock released for account 1
+2026-04-19 16:52:45,869 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:46,042 - src.core.idempotency - INFO - Request server_1_1776595965209_97b7993a_0799999999 updated to status completed
+2026-04-19 16:52:46,225 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:46,640 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:47,051 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:47,468 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:47,885 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:48,297 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:48,716 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:49,075 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:49,490 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:49,902 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:50,313 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:50,678 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:51,094 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:51,304 - src.core.idempotency - INFO - Request server_1_1776595971213_98bb6bd8_0799999999 created for transfer
+2026-04-19 16:52:51,399 - src.core.idempotency - INFO - Request server_1_1776595971213_98bb6bd8_0799999999 updated to status failed
+2026-04-19 16:52:51,505 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:51,864 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:52,280 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:52,692 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:53,103 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:53,464 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:53,880 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:54,410 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:55,502 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:55,934 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:56,312 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:56,696 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:57,068 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:57,429 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:57,846 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:58,261 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:58,668 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:59,027 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:59,442 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:52:59,851 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:00,260 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:00,620 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:01,085 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:01,446 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:01,863 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:06,005 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:06,408 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:06,817 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:07,230 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:07,643 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:08,055 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:08,418 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:08,833 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:09,247 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:09,660 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:10,022 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:10,436 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:10,800 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:11,562 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:14,064 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:53:14,075 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:14,198 - config.database - INFO - Dropped all existing tables and related objects
+2026-04-19 16:53:14,440 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:14,827 - config.database - INFO - Database initialized successfully
+2026-04-19 16:53:14,828 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 16:53:14,852 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:15,214 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:15,616 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:16,026 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:16,492 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:16,849 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:17,251 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:17,662 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:18,074 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:18,489 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:18,900 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:19,310 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:19,670 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:20,073 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:20,484 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:20,896 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:21,259 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:21,673 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:22,088 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:22,495 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:22,904 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:23,314 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:23,729 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:24,141 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:24,504 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:24,918 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:25,333 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:25,705 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:26,119 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:26,531 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:26,944 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:27,307 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:27,722 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:28,148 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:28,507 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:28,923 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:29,387 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:29,744 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:30,146 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:30,556 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:30,975 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:31,383 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:31,747 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:32,181 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:32,617 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:33,032 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:33,442 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:33,803 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:34,219 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:34,633 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:34,993 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:35,407 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:35,821 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:36,182 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:36,597 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:36,960 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:37,325 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:37,688 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:38,103 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:38,514 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:38,927 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:39,289 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:39,405 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:53:39,607 - config.database - INFO - Dropped all existing tables and related objects
+2026-04-19 16:53:39,641 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:40,006 - config.database - INFO - Database initialized successfully
+2026-04-19 16:53:40,006 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 16:53:40,008 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:40,367 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:40,733 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:41,099 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:41,466 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:41,830 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:42,246 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:42,658 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:43,022 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:43,435 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:43,848 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:44,209 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:44,622 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:45,035 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:45,447 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:45,810 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:46,224 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:46,638 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:47,000 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:47,417 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:47,830 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:48,193 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:48,610 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:49,022 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:49,386 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:49,800 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:50,212 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:50,577 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:50,993 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:51,407 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:51,768 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:52,184 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:52,596 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:53,008 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:53,370 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:53,786 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:54,198 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:54,556 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:54,970 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:55,381 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:55,789 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:56,202 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:56,564 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:56,980 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:57,393 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:57,755 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:58,168 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:58,579 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:58,992 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:59,356 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:53:59,772 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:00,185 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:00,545 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:00,961 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:01,375 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:01,739 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:02,155 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:02,568 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:02,981 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:03,368 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:03,774 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:04,187 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:04,551 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:04,965 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:05,378 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:05,742 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:06,158 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:06,573 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:06,932 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:07,348 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:07,761 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:08,124 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:08,541 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:08,954 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:09,361 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:09,726 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:10,191 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:10,651 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:11,058 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:11,472 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:11,835 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:12,252 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:12,674 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:13,077 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:13,438 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:13,856 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:14,320 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:14,886 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:15,289 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:15,700 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:16,063 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:16,479 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:16,895 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:17,311 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:17,718 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:18,131 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:18,493 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:18,908 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:19,321 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:19,731 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:20,132 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:20,541 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:20,904 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:21,305 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:21,720 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:22,138 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:22,507 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:22,922 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:23,336 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:23,798 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:24,258 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:24,664 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:25,024 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:25,436 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:25,849 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:26,264 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:26,627 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:27,041 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:27,455 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:27,817 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:28,232 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:28,649 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:29,040 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:29,461 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:29,880 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:30,286 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:30,699 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:31,062 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:31,476 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:31,887 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:32,305 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:32,712 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:33,123 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:33,533 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:33,945 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:34,356 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:34,767 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:35,180 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:35,630 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:36,035 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:36,395 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:36,812 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:37,224 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:37,631 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:38,043 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:38,411 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:38,822 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:39,234 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:39,644 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:40,057 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:40,471 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:40,882 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:41,291 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:41,708 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:42,117 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:42,481 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:42,933 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:43,342 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:43,705 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:44,122 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:44,536 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:44,949 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:45,311 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:45,728 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:46,137 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:46,501 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:46,917 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:47,332 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:47,695 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:48,119 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:48,528 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:48,943 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:49,355 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:49,720 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:50,134 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:50,546 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:50,904 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:51,319 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:51,730 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:52,096 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:52,510 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:52,920 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:53,282 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:53,697 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:54,156 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:54,572 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:54,982 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:55,394 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:55,757 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:56,127 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:56,537 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:56,950 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:57,314 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:57,728 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:58,144 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:58,554 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:58,971 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:54:59,538 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:00,062 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:00,437 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:00,805 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:01,217 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:01,413 - __main__ - INFO - ======================================================================
+2026-04-19 16:55:01,413 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 16:55:01,413 - __main__ - INFO - ======================================================================
+2026-04-19 16:55:01,414 - __main__ - INFO - Server ID: server_1
+2026-04-19 16:55:01,414 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 16:55:01,416 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 16:55:01,417 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 16:55:01,418 - __main__ - INFO - Environment: development
+2026-04-19 16:55:01,420 - __main__ - INFO - ======================================================================
+
+2026-04-19 16:55:01,578 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:01,939 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:02,309 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:02,751 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:03,168 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:03,579 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:03,989 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:04,591 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:04,993 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:05,089 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:55:05,320 - config.database - INFO - Dropped all existing tables and related objects
+2026-04-19 16:55:05,376 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:05,823 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:05,870 - config.database - INFO - Database initialized successfully
+2026-04-19 16:55:05,874 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 16:55:06,242 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:06,661 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:07,023 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:07,467 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:07,828 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:08,191 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:08,604 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:09,017 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:09,427 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:09,889 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:10,352 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:10,759 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:11,172 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:11,586 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:12,090 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:12,494 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:12,906 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:13,318 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:13,849 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:14,361 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:15,059 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:15,417 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:15,781 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:16,192 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:16,603 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:17,015 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:17,425 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:17,839 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:18,202 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:18,655 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:19,073 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:19,485 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:19,955 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:20,489 - watchfiles.main - INFO - 2 changes detected
+2026-04-19 16:55:21,305 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:23,976 - watchfiles.main - INFO - 5 changes detected
+2026-04-19 16:55:24,440 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:24,490 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:55:24,690 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 16:55:24,691 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 16:55:24,855 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:25,266 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:25,676 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:26,089 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:26,551 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:26,959 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:27,369 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:27,783 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:28,196 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:28,662 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:29,120 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:29,631 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:30,041 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:30,449 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:30,866 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:31,278 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:31,688 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:32,148 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:32,558 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:32,971 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:33,383 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:33,795 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:34,202 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:34,724 - watchfiles.main - INFO - 2 changes detected
+2026-04-19 16:55:35,587 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:35,948 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:36,455 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:36,829 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:37,199 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:37,612 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:38,628 - watchfiles.main - INFO - 1 change detected
+2026-04-19 16:55:44,301 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:55:44,582 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 16:55:44,586 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 16:55:52,532 - __main__ - INFO - ======================================================================
+2026-04-19 16:55:52,533 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 16:55:52,534 - __main__ - INFO - ======================================================================
+2026-04-19 16:55:52,534 - __main__ - INFO - Server ID: server_1
+2026-04-19 16:55:52,534 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 16:55:52,535 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 16:55:52,535 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 16:55:52,536 - __main__ - INFO - Environment: development
+2026-04-19 16:55:52,536 - __main__ - INFO - ======================================================================
+
+2026-04-19 16:55:52,646 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:55:52,878 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 16:55:52,879 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 16:56:29,764 - __main__ - INFO - ======================================================================
+2026-04-19 16:56:29,765 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 16:56:29,766 - __main__ - INFO - ======================================================================
+2026-04-19 16:56:29,766 - __main__ - INFO - Server ID: server_1
+2026-04-19 16:56:29,767 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 16:56:29,767 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 16:56:29,768 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 16:56:29,768 - __main__ - INFO - Environment: development
+2026-04-19 16:56:29,769 - __main__ - INFO - ======================================================================
+
+2026-04-19 16:56:29,881 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:56:30,049 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 16:56:30,049 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 16:58:44,583 - __main__ - INFO - ======================================================================
+2026-04-19 16:58:44,583 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 16:58:44,584 - __main__ - INFO - ======================================================================
+2026-04-19 16:58:44,585 - __main__ - INFO - Server ID: server_1
+2026-04-19 16:58:44,585 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 16:58:44,586 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 16:58:44,588 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 16:58:44,589 - __main__ - INFO - Environment: development
+2026-04-19 16:58:44,590 - __main__ - INFO - ======================================================================
+
+2026-04-19 16:58:44,648 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:58:44,850 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 16:58:44,850 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:00:49,172 - __main__ - INFO - ======================================================================
+2026-04-19 17:00:49,173 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:00:49,173 - __main__ - INFO - ======================================================================
+2026-04-19 17:00:49,174 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:00:49,174 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:00:49,174 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:00:49,175 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:00:49,175 - __main__ - INFO - Environment: development
+2026-04-19 17:00:49,176 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:00:49,290 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:00:49,465 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:00:49,465 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:01:18,699 - __main__ - INFO - ======================================================================
+2026-04-19 17:01:18,699 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:01:18,700 - __main__ - INFO - ======================================================================
+2026-04-19 17:01:18,701 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:01:18,701 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:01:18,701 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:01:18,702 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:01:18,702 - __main__ - INFO - Environment: development
+2026-04-19 17:01:18,703 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:01:18,830 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:01:19,050 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:01:19,051 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:01:51,146 - src.api.routes - INFO - Account created: 254712345678
+2026-04-19 17:02:21,905 - __main__ - INFO - ======================================================================
+2026-04-19 17:02:21,905 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:02:21,906 - __main__ - INFO - ======================================================================
+2026-04-19 17:02:21,906 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:02:21,907 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:02:21,907 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:02:21,908 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:02:21,908 - __main__ - INFO - Environment: development
+2026-04-19 17:02:21,909 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:02:21,967 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:02:22,120 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:02:22,120 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:03:08,795 - __main__ - INFO - ======================================================================
+2026-04-19 17:03:08,795 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:03:08,796 - __main__ - INFO - ======================================================================
+2026-04-19 17:03:08,797 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:03:08,797 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:03:08,797 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:03:08,798 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:03:08,798 - __main__ - INFO - Environment: development
+2026-04-19 17:03:08,799 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:03:08,910 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:03:09,095 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:03:09,095 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:03:22,763 - __main__ - INFO - ======================================================================
+2026-04-19 17:03:22,764 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:03:22,764 - __main__ - INFO - ======================================================================
+2026-04-19 17:03:22,765 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:03:22,765 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:03:22,765 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:03:22,766 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:03:22,766 - __main__ - INFO - Environment: development
+2026-04-19 17:03:22,767 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:03:22,821 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:03:22,993 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:03:22,994 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:06:48,164 - __main__ - INFO - ======================================================================
+2026-04-19 17:06:48,165 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:06:48,166 - __main__ - INFO - ======================================================================
+2026-04-19 17:06:48,166 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:06:48,167 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:06:48,167 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:06:48,168 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:06:48,168 - __main__ - INFO - Environment: development
+2026-04-19 17:06:48,169 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:06:48,230 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:06:48,456 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:06:48,457 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:11:54,463 - __main__ - INFO - ======================================================================
+2026-04-19 17:11:54,464 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:11:54,464 - __main__ - INFO - ======================================================================
+2026-04-19 17:11:54,465 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:11:54,465 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:11:54,466 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:11:54,466 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:11:54,467 - __main__ - INFO - Environment: development
+2026-04-19 17:11:54,467 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:11:54,571 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:11:54,928 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:11:54,930 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:12:35,700 - __main__ - INFO - ======================================================================
+2026-04-19 17:12:35,700 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:12:35,701 - __main__ - INFO - ======================================================================
+2026-04-19 17:12:35,701 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:12:35,702 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:12:35,703 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:12:35,703 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:12:35,704 - __main__ - INFO - Environment: development
+2026-04-19 17:12:35,704 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:12:35,809 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:12:36,080 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:12:36,081 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:13:12,602 - __main__ - INFO - ======================================================================
+2026-04-19 17:13:12,603 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:13:12,604 - __main__ - INFO - ======================================================================
+2026-04-19 17:13:12,604 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:13:12,605 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:13:12,605 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:13:12,606 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:13:12,606 - __main__ - INFO - Environment: development
+2026-04-19 17:13:12,606 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:13:12,733 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:13:12,910 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:13:12,910 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:13:27,977 - src.api.routes - ERROR - Account creation failed: 400: Account already exists
+2026-04-19 17:14:32,457 - src.api.routes - ERROR - Account creation failed: 400: Account already exists
+2026-04-19 17:14:49,600 - src.core.idempotency - INFO - Request server_1_1776597289447_f743bc47_254712345678 created for withdraw
+2026-04-19 17:14:49,693 - src.core.operations - INFO - Lock acquired for account 1, request server_1_1776597289447_f743bc47_254712345678
+2026-04-19 17:14:49,873 - src.core.operations - INFO - Withdrawal successful: 254712345678, Amount: 100.0, Balance: 249900.0000
+2026-04-19 17:14:49,898 - src.core.operations - INFO - Lock released for account 1
+2026-04-19 17:14:49,988 - src.core.idempotency - INFO - Request server_1_1776597289447_f743bc47_254712345678 updated to status completed
+2026-04-19 17:15:30,890 - src.core.idempotency - INFO - Request server_1_1776597330806_f0eed7e0_0752235731 created for deposit
+2026-04-19 17:15:30,973 - src.core.operations - INFO - Lock acquired for account 1, request server_1_1776597330806_f0eed7e0_0752235731
+2026-04-19 17:15:31,140 - src.core.operations - INFO - Deposit successful: 0752235731, Amount: 500.0, Balance: 250400.0000
+2026-04-19 17:15:31,157 - src.core.operations - INFO - Lock released for account 1
+2026-04-19 17:15:31,240 - src.core.idempotency - INFO - Request server_1_1776597330806_f0eed7e0_0752235731 updated to status completed
+2026-04-19 17:19:37,387 - __main__ - INFO - ======================================================================
+2026-04-19 17:19:37,388 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:19:37,389 - __main__ - INFO - ======================================================================
+2026-04-19 17:19:37,390 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:19:37,391 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:19:37,392 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:19:37,392 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:19:37,393 - __main__ - INFO - Environment: development
+2026-04-19 17:19:37,393 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:19:37,497 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:19:37,708 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:19:37,708 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:20:20,473 - src.core.idempotency - ERROR - Failed to create request entry: (psycopg2.errors.ForeignKeyViolation) insert or update on table "requests" violates foreign key constraint "requests_account_id_fkey"
+DETAIL:  Key (account_id)=(752235731) is not present in table "accounts".
+
+[SQL: INSERT INTO requests (request_id, account_id, phone_number, operation_type, request_data, status, response_code, error_message, client_ip, created_at, updated_at, expires_at, server_id) VALUES (%(request_id)s, %(account_id)s, %(phone_number)s, %(operation_type)s, %(request_data)s, %(status)s, %(response_code)s, %(error_message)s, %(client_ip)s, %(created_at)s, %(updated_at)s, %(expires_at)s, %(server_id)s)]
+[parameters: {'request_id': 'server_1_1776597620249_ae327bec_0752235731', 'account_id': 752235731, 'phone_number': '0752235731', 'operation_type': 'deposit', 'request_data': '{"amount": 200000.0}', 'status': 'received', 'response_code': None, 'error_message': None, 'client_ip': '0.0.0.0', 'created_at': datetime.datetime(2026, 4, 19, 14, 20, 20, 464196), 'updated_at': datetime.datetime(2026, 4, 19, 14, 20, 20, 464196), 'expires_at': datetime.datetime(2026, 4, 19, 15, 20, 20, 462207), 'server_id': 'server_1'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2026-04-19 17:20:20,552 - src.core.operations - ERROR - Failed to acquire lock: (psycopg2.errors.ForeignKeyViolation) insert or update on table "account_locks" violates foreign key constraint "account_locks_account_id_fkey"
+DETAIL:  Key (account_id)=(752235731) is not present in table "accounts".
+
+[SQL: INSERT INTO account_locks (account_id, lock_holder_server, request_id, lock_type, acquired_at, expires_at, reason) VALUES (%(account_id)s, %(lock_holder_server)s, %(request_id)s, %(lock_type)s, %(acquired_at)s, %(expires_at)s, %(reason)s) RETURNING account_locks.lock_id]
+[parameters: {'account_id': 752235731, 'lock_holder_server': 'server_1', 'request_id': 'server_1_1776597620249_ae327bec_0752235731', 'lock_type': 'exclusive', 'acquired_at': datetime.datetime(2026, 4, 19, 14, 20, 20, 544201), 'expires_at': datetime.datetime(2026, 4, 19, 14, 20, 50, 541201), 'reason': 'Operation in progress'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2026-04-19 17:20:20,615 - src.core.idempotency - WARNING - Request server_1_1776597620249_ae327bec_0752235731 not found for update
+2026-04-19 17:27:19,586 - __main__ - INFO - ======================================================================
+2026-04-19 17:27:19,593 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:27:19,594 - __main__ - INFO - ======================================================================
+2026-04-19 17:27:19,608 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:27:19,619 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:27:19,623 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:27:19,631 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:27:19,634 - __main__ - INFO - Environment: development
+2026-04-19 17:27:19,649 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:27:19,800 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:27:19,960 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:27:19,961 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:28:08,451 - __main__ - INFO - ======================================================================
+2026-04-19 17:28:08,452 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:28:08,453 - __main__ - INFO - ======================================================================
+2026-04-19 17:28:08,453 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:28:08,454 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:28:08,454 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:28:08,454 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:28:08,455 - __main__ - INFO - Environment: development
+2026-04-19 17:28:08,455 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:28:08,795 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:28:09,006 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:28:09,006 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:28:23,637 - src.api.routes - ERROR - Account creation failed: 400: Account already exists
+2026-04-19 17:29:09,188 - src.api.routes - ERROR - Account creation failed: 400: Account already exists
+2026-04-19 17:29:32,386 - src.api.routes - INFO - Account created: 0789999999
+2026-04-19 17:29:43,155 - src.core.idempotency - INFO - Request server_1_1776598183133_555db0bf_0789999999 created for deposit
+2026-04-19 17:29:43,385 - src.core.operations - INFO - Lock acquired for account 12, request server_1_1776598183133_555db0bf_0789999999
+2026-04-19 17:29:43,700 - src.core.operations - INFO - Deposit successful: 0789999999, Amount: 1000.0, Balance: 4000.0000
+2026-04-19 17:29:43,832 - src.core.operations - INFO - Lock released for account 12
+2026-04-19 17:29:44,043 - src.core.idempotency - INFO - Request server_1_1776598183133_555db0bf_0789999999 updated to status completed
+2026-04-19 17:32:01,256 - src.core.idempotency - INFO - Request server_1_1776598321193_bb46b1f5_0789999999 created for withdraw
+2026-04-19 17:32:01,367 - src.core.operations - INFO - Lock acquired for account 12, request server_1_1776598321193_bb46b1f5_0789999999
+2026-04-19 17:32:01,511 - src.core.operations - INFO - Withdrawal successful: 0789999999, Amount: 500.0, Balance: 3500.0000
+2026-04-19 17:32:01,556 - src.core.operations - INFO - Lock released for account 12
+2026-04-19 17:32:01,645 - src.core.idempotency - INFO - Request server_1_1776598321193_bb46b1f5_0789999999 updated to status completed
+2026-04-19 17:36:19,530 - src.api.routes - INFO - Account created: 254788888888
+2026-04-19 17:36:21,840 - src.api.routes - INFO - Account created: 254799999999
+2026-04-19 17:36:24,026 - src.api.routes - INFO - Account created: 254711111111
+2026-04-19 17:36:26,240 - src.core.idempotency - INFO - Request server_1_1776598586224_67f968d0_254788888888 created for deposit
+2026-04-19 17:36:26,338 - src.core.operations - INFO - Lock acquired for account 13, request server_1_1776598586224_67f968d0_254788888888
+2026-04-19 17:36:26,490 - src.core.operations - INFO - Deposit successful: 254788888888, Amount: 1000.0, Balance: 6000.0000
+2026-04-19 17:36:26,509 - src.core.operations - INFO - Lock released for account 13
+2026-04-19 17:36:26,646 - src.core.idempotency - INFO - Request server_1_1776598586224_67f968d0_254788888888 updated to status completed
+2026-04-19 17:36:28,831 - src.core.idempotency - INFO - Request server_1_1776598588771_ba6380ba_254799999999 created for deposit
+2026-04-19 17:36:28,922 - src.core.operations - INFO - Lock acquired for account 14, request server_1_1776598588771_ba6380ba_254799999999
+2026-04-19 17:36:29,092 - src.core.operations - INFO - Deposit successful: 254799999999, Amount: 1000.0, Balance: 11000.0000
+2026-04-19 17:36:29,112 - src.core.operations - INFO - Lock released for account 14
+2026-04-19 17:36:29,206 - src.core.idempotency - INFO - Request server_1_1776598588771_ba6380ba_254799999999 updated to status completed
+2026-04-19 17:36:31,326 - src.core.idempotency - INFO - Request server_1_1776598591311_2c881181_254711111111 created for deposit
+2026-04-19 17:36:31,468 - src.core.operations - INFO - Lock acquired for account 15, request server_1_1776598591311_2c881181_254711111111
+2026-04-19 17:36:31,945 - src.core.operations - INFO - Deposit successful: 254711111111, Amount: 1000.0, Balance: 16000.0000
+2026-04-19 17:36:32,002 - src.core.operations - INFO - Lock released for account 15
+2026-04-19 17:36:32,134 - src.core.idempotency - INFO - Request server_1_1776598591311_2c881181_254711111111 updated to status completed
+2026-04-19 17:36:34,273 - src.core.idempotency - INFO - Request server_1_1776598594258_d394c643_254788888888 created for withdraw
+2026-04-19 17:36:34,384 - src.core.operations - INFO - Lock acquired for account 13, request server_1_1776598594258_d394c643_254788888888
+2026-04-19 17:36:34,590 - src.core.operations - INFO - Withdrawal successful: 254788888888, Amount: 500.0, Balance: 5500.0000
+2026-04-19 17:36:34,609 - src.core.operations - INFO - Lock released for account 13
+2026-04-19 17:36:34,706 - src.core.idempotency - INFO - Request server_1_1776598594258_d394c643_254788888888 updated to status completed
+2026-04-19 17:36:36,890 - src.core.idempotency - INFO - Request server_1_1776598596871_f572ef88_254799999999 created for withdraw
+2026-04-19 17:36:37,021 - src.core.operations - INFO - Lock acquired for account 14, request server_1_1776598596871_f572ef88_254799999999
+2026-04-19 17:36:37,215 - src.core.operations - INFO - Withdrawal successful: 254799999999, Amount: 500.0, Balance: 10500.0000
+2026-04-19 17:36:37,235 - src.core.operations - INFO - Lock released for account 14
+2026-04-19 17:36:37,346 - src.core.idempotency - INFO - Request server_1_1776598596871_f572ef88_254799999999 updated to status completed
+2026-04-19 17:36:39,473 - src.core.idempotency - INFO - Request server_1_1776598599456_46242b5c_254711111111 created for withdraw
+2026-04-19 17:36:39,573 - src.core.operations - INFO - Lock acquired for account 15, request server_1_1776598599456_46242b5c_254711111111
+2026-04-19 17:36:39,754 - src.core.operations - INFO - Withdrawal successful: 254711111111, Amount: 500.0, Balance: 15500.0000
+2026-04-19 17:36:39,772 - src.core.operations - INFO - Lock released for account 15
+2026-04-19 17:36:39,864 - src.core.idempotency - INFO - Request server_1_1776598599456_46242b5c_254711111111 updated to status completed
+2026-04-19 17:40:51,148 - __main__ - INFO - ======================================================================
+2026-04-19 17:40:51,148 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:40:51,149 - __main__ - INFO - ======================================================================
+2026-04-19 17:40:51,149 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:40:51,149 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:40:51,150 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:40:51,150 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:40:51,150 - __main__ - INFO - Environment: development
+2026-04-19 17:40:51,151 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:40:51,220 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:40:51,402 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:40:51,402 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:41:38,775 - __main__ - INFO - ======================================================================
+2026-04-19 17:41:38,775 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:41:38,776 - __main__ - INFO - ======================================================================
+2026-04-19 17:41:38,777 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:41:38,777 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:41:38,778 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:41:38,778 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:41:38,778 - __main__ - INFO - Environment: development
+2026-04-19 17:41:38,779 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:41:38,883 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:41:39,162 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:41:39,163 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:41:52,371 - __main__ - INFO - ======================================================================
+2026-04-19 17:41:52,371 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:41:52,372 - __main__ - INFO - ======================================================================
+2026-04-19 17:41:52,372 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:41:52,373 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:41:52,373 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:41:52,374 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:41:52,374 - __main__ - INFO - Environment: development
+2026-04-19 17:41:52,375 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:41:52,454 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:41:52,628 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:41:52,629 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:42:22,457 - __main__ - INFO - ======================================================================
+2026-04-19 17:42:22,459 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:42:22,460 - __main__ - INFO - ======================================================================
+2026-04-19 17:42:22,461 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:42:22,461 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:42:22,462 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:42:22,462 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:42:22,463 - __main__ - INFO - Environment: development
+2026-04-19 17:42:22,464 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:42:22,574 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:42:22,782 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:42:22,783 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:45:45,727 - __main__ - INFO - ======================================================================
+2026-04-19 17:45:45,728 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:45:45,729 - __main__ - INFO - ======================================================================
+2026-04-19 17:45:45,729 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:45:45,730 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:45:45,730 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:45:45,731 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:45:45,731 - __main__ - INFO - Environment: development
+2026-04-19 17:45:45,731 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:45:45,846 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:45:46,274 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:45:46,277 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:46:10,802 - __main__ - INFO - ======================================================================
+2026-04-19 17:46:10,802 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:46:10,803 - __main__ - INFO - ======================================================================
+2026-04-19 17:46:10,803 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:46:10,803 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:46:10,804 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:46:10,804 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:46:10,805 - __main__ - INFO - Environment: development
+2026-04-19 17:46:10,805 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:46:10,936 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:46:11,089 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:46:11,090 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:48:38,151 - __main__ - INFO - ======================================================================
+2026-04-19 17:48:38,152 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:48:38,153 - __main__ - INFO - ======================================================================
+2026-04-19 17:48:38,154 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:48:38,154 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:48:38,155 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:48:38,156 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:48:38,156 - __main__ - INFO - Environment: development
+2026-04-19 17:48:38,157 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:48:38,273 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:48:38,446 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:48:38,447 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:52:25,701 - __main__ - INFO - ======================================================================
+2026-04-19 17:52:25,702 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 17:52:25,703 - __main__ - INFO - ======================================================================
+2026-04-19 17:52:25,704 - __main__ - INFO - Server ID: server_1
+2026-04-19 17:52:25,705 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 17:52:25,705 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 17:52:25,706 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 17:52:25,706 - __main__ - INFO - Environment: development
+2026-04-19 17:52:25,706 - __main__ - INFO - ======================================================================
+
+2026-04-19 17:52:25,773 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 17:52:26,042 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 17:52:26,042 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 17:53:44,479 - src.core.idempotency - INFO - Request server_1_1776599624413_3b78f2c1_0701234567 created for deposit
+2026-04-19 17:53:44,546 - src.core.operations - INFO - Lock acquired for account 2, request server_1_1776599624413_3b78f2c1_0701234567
+2026-04-19 17:53:44,672 - src.core.operations - INFO - Deposit successful: 0701234567, Amount: 500000.0, Balance: 1000000.0000
+2026-04-19 17:53:44,691 - src.core.operations - INFO - Lock released for account 2
+2026-04-19 17:53:44,756 - src.core.idempotency - INFO - Request server_1_1776599624413_3b78f2c1_0701234567 updated to status completed
+2026-04-19 17:55:09,098 - src.core.idempotency - INFO - Request server_1_1776599709086_ebb20552_0701234567 created for withdraw
+2026-04-19 17:55:09,165 - src.core.operations - INFO - Lock acquired for account 2, request server_1_1776599709086_ebb20552_0701234567
+2026-04-19 17:55:09,284 - src.core.operations - INFO - Withdrawal successful: 0701234567, Amount: 5000.0, Balance: 995000.0000
+2026-04-19 17:55:09,299 - src.core.operations - INFO - Lock released for account 2
+2026-04-19 17:55:09,363 - src.core.idempotency - INFO - Request server_1_1776599709086_ebb20552_0701234567 updated to status completed
+2026-04-19 17:57:55,048 - src.core.idempotency - INFO - Request server_1_1776599874983_c1cb1240_0707778888 created for deposit
+2026-04-19 17:57:55,277 - src.core.operations - INFO - Lock acquired for account 7, request server_1_1776599874983_c1cb1240_0707778888
+2026-04-19 17:57:55,394 - src.core.operations - INFO - Deposit successful: 0707778888, Amount: 500000.0, Balance: 2000000.0000
+2026-04-19 17:57:55,410 - src.core.operations - INFO - Lock released for account 7
+2026-04-19 17:57:55,470 - src.core.idempotency - INFO - Request server_1_1776599874983_c1cb1240_0707778888 updated to status completed
+2026-04-19 17:58:53,047 - src.core.idempotency - INFO - Request server_1_1776599933033_f0dc069d_0707778888 created for withdraw
+2026-04-19 17:58:53,232 - src.core.operations - INFO - Lock acquired for account 7, request server_1_1776599933033_f0dc069d_0707778888
+2026-04-19 17:58:53,406 - src.core.operations - INFO - Withdrawal successful: 0707778888, Amount: 1000000.0, Balance: 1000000.0000
+2026-04-19 17:58:53,423 - src.core.operations - INFO - Lock released for account 7
+2026-04-19 17:58:53,514 - src.core.idempotency - INFO - Request server_1_1776599933033_f0dc069d_0707778888 updated to status completed
+2026-04-19 18:04:25,738 - __main__ - INFO - ======================================================================
+2026-04-19 18:04:25,738 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 18:04:25,738 - __main__ - INFO - ======================================================================
+2026-04-19 18:04:25,739 - __main__ - INFO - Server ID: server_1
+2026-04-19 18:04:25,739 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 18:04:25,739 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 18:04:25,739 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 18:04:25,741 - __main__ - INFO - Environment: development
+2026-04-19 18:04:25,741 - __main__ - INFO - ======================================================================
+
+2026-04-19 18:04:25,796 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 18:04:25,950 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 18:04:25,951 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 18:08:58,573 - __main__ - INFO - ======================================================================
+2026-04-19 18:08:58,573 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 18:08:58,573 - __main__ - INFO - ======================================================================
+2026-04-19 18:08:58,574 - __main__ - INFO - Server ID: server_1
+2026-04-19 18:08:58,574 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 18:08:58,574 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 18:08:58,575 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 18:08:58,575 - __main__ - INFO - Environment: development
+2026-04-19 18:08:58,576 - __main__ - INFO - ======================================================================
+
+2026-04-19 18:08:58,632 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 18:08:58,892 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 18:08:58,892 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 18:09:53,170 - __main__ - INFO - ======================================================================
+2026-04-19 18:09:53,171 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 18:09:53,171 - __main__ - INFO - ======================================================================
+2026-04-19 18:09:53,172 - __main__ - INFO - Server ID: server_2
+2026-04-19 18:09:53,172 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 18:09:53,172 - __main__ - INFO - Server Address: 0.0.0.0:8002
+2026-04-19 18:09:53,173 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 18:09:53,173 - __main__ - INFO - Environment: development
+2026-04-19 18:09:53,173 - __main__ - INFO - ======================================================================
+
+2026-04-19 18:09:53,235 - src.api.routes - INFO - Starting Mobile Money Server: server_2
+2026-04-19 18:09:53,393 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 18:09:53,394 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 18:10:07,201 - __main__ - INFO - ======================================================================
+2026-04-19 18:10:07,202 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 18:10:07,202 - __main__ - INFO - ======================================================================
+2026-04-19 18:10:07,202 - __main__ - INFO - Server ID: server_3
+2026-04-19 18:10:07,203 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 18:10:07,203 - __main__ - INFO - Server Address: 0.0.0.0:8003
+2026-04-19 18:10:07,203 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 18:10:07,204 - __main__ - INFO - Environment: development
+2026-04-19 18:10:07,204 - __main__ - INFO - ======================================================================
+
+2026-04-19 18:10:07,257 - src.api.routes - INFO - Starting Mobile Money Server: server_3
+2026-04-19 18:10:07,494 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 18:10:07,494 - src.api.routes - INFO - Database initialized successfully

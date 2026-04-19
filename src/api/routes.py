@@ -36,7 +36,7 @@ discovery = ServerDiscovery(hash_ring)
 
 # Request models
 class WithdrawRequest(BaseModel):
-    account_id: int
+    account_id: Optional[int] = None
     phone_number: str
     amount: float
     client_ip: str = "127.0.0.1"
@@ -44,7 +44,7 @@ class WithdrawRequest(BaseModel):
 
 
 class DepositRequest(BaseModel):
-    account_id: int
+    account_id: Optional[int] = None
     phone_number: str
     amount: float
     client_ip: str = "127.0.0.1"
@@ -52,8 +52,18 @@ class DepositRequest(BaseModel):
 
 
 class BalanceRequest(BaseModel):
-    account_id: int
+    account_id: Optional[int] = None
+    phone_number: Optional[str] = None
     client_ip: str = "127.0.0.1"
+
+
+class TransferRequest(BaseModel):
+    from_account_id: int
+    from_phone_number: str
+    to_phone_number: str
+    amount: float
+    client_ip: str = "127.0.0.1"
+    client_reference: Optional[str] = None
 
 
 class USSDRequest(BaseModel):
@@ -193,6 +203,16 @@ async def withdraw(req: WithdrawRequest, db: Session = Depends(get_db)):
     Synchronous operation - returns immediate response
     """
     try:
+        # Resolve account by phone_number or account_id
+        acc_resolved, acc_msg, account = AccountOperations.resolve_account(
+            db, req.account_id, req.phone_number
+        )
+        
+        if not acc_resolved:
+            raise HTTPException(status_code=404, detail=acc_msg)
+        
+        account_id = account.account_id
+        
         # Generate request ID for idempotency
         request_id = RequestIdempotency.generate_request_id(
             req.phone_number,
@@ -212,13 +232,13 @@ async def withdraw(req: WithdrawRequest, db: Session = Depends(get_db)):
         
         # Create request entry
         RequestIdempotency.create_request_entry(
-            db, request_id, req.account_id, req.phone_number,
+            db, request_id, account_id, req.phone_number,
             "withdraw", {"amount": req.amount}, req.client_ip
         )
         
         # Execute withdrawal
         success, message, response_data = AccountOperations.withdraw(
-            db, req.account_id, req.phone_number,
+            db, account_id, req.phone_number,
             Decimal(str(req.amount)), request_id
         )
         
@@ -259,6 +279,16 @@ async def deposit(req: DepositRequest, db: Session = Depends(get_db)):
     Mostly synchronous but notification is async
     """
     try:
+        # Resolve account by phone_number or account_id
+        acc_resolved, acc_msg, account = AccountOperations.resolve_account(
+            db, req.account_id, req.phone_number
+        )
+        
+        if not acc_resolved:
+            raise HTTPException(status_code=404, detail=acc_msg)
+        
+        account_id = account.account_id
+        
         # Generate request ID
         request_id = RequestIdempotency.generate_request_id(
             req.phone_number,
@@ -278,13 +308,13 @@ async def deposit(req: DepositRequest, db: Session = Depends(get_db)):
         
         # Create request entry
         RequestIdempotency.create_request_entry(
-            db, request_id, req.account_id, req.phone_number,
+            db, request_id, account_id, req.phone_number,
             "deposit", {"amount": req.amount}, req.client_ip
         )
         
         # Execute deposit
         success, message, response_data = AccountOperations.deposit(
-            db, req.account_id, req.phone_number,
+            db, account_id, req.phone_number,
             Decimal(str(req.amount)), request_id
         )
         
@@ -324,12 +354,22 @@ async def deposit(req: DepositRequest, db: Session = Depends(get_db)):
 @app.post("/api/v1/operation/balance")
 async def check_balance(req: BalanceRequest, db: Session = Depends(get_db)):
     """
-    Check account balance
+    Check account balance (POST endpoint)
     Synchronous operation - returns immediate response
     """
     try:
+        # Resolve account by phone_number or account_id
+        acc_resolved, acc_msg, account = AccountOperations.resolve_account(
+            db, req.account_id, req.phone_number
+        )
+        
+        if not acc_resolved:
+            raise HTTPException(status_code=404, detail=acc_msg)
+        
+        account_id = account.account_id
+        
         success, message, response_data = AccountOperations.check_balance(
-            db, req.account_id
+            db, account_id
         )
         
         if success:
@@ -348,9 +388,36 @@ async def check_balance(req: BalanceRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.post("/api/v1/operation/transactions")
+@app.get("/api/v1/operation/balance/{account_id}")
+async def check_balance_get(account_id: int, db: Session = Depends(get_db)):
+    """
+    Check account balance (GET endpoint)
+    Synchronous operation - returns immediate response
+    """
+    try:
+        success, message, response_data = AccountOperations.check_balance(
+            db, account_id
+        )
+        
+        if success:
+            return {
+                "status": "success",
+                "message": message,
+                "data": response_data
+            }
+        else:
+            raise HTTPException(status_code=404, detail=message)
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Balance check failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/v1/operation/transactions/{account_id}")
 async def get_transactions(account_id: int, limit: int = 10, db: Session = Depends(get_db)):
-    """Get last N transactions"""
+    """Get last N transactions (GET endpoint)"""
     try:
         success, message, response_data = AccountOperations.get_last_transactions(
             db, account_id, limit
@@ -368,6 +435,72 @@ async def get_transactions(account_id: int, limit: int = 10, db: Session = Depen
         raise
     except Exception as e:
         logger.error(f"Transaction query failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v1/operation/transfer")
+async def transfer(req: TransferRequest, db: Session = Depends(get_db)):
+    """
+    Transfer funds between accounts
+    Synchronous operation - returns immediate response
+    """
+    try:
+        # Generate request ID for idempotency
+        request_id = RequestIdempotency.generate_request_id(
+            req.from_phone_number,
+            "transfer",
+            req.client_reference
+        )
+        
+        # Check for duplicate request
+        is_dup, cached_response = RequestIdempotency.is_duplicate_request(db, request_id)
+        if is_dup:
+            return {
+                "status": "success",
+                "message": "Duplicate request - cached response",
+                "data": cached_response,
+                "request_id": request_id
+            }
+        
+        # Create request entry
+        RequestIdempotency.create_request_entry(
+            db, request_id, req.from_account_id, req.from_phone_number,
+            "transfer", {"amount": req.amount, "to": req.to_phone_number}, req.client_ip
+        )
+        
+        # Execute transfer
+        success, message, response_data = AccountOperations.transfer(
+            db, req.from_account_id, req.from_phone_number,
+            req.to_phone_number, Decimal(str(req.amount)), request_id
+        )
+        
+        # Update request status
+        RequestIdempotency.update_request_status(
+            db, request_id,
+            "completed" if success else "failed",
+            200 if success else 400,
+            response_data,
+            None if success else message
+        )
+        
+        if success:
+            return {
+                "status": "success",
+                "message": message,
+                "data": response_data,
+                "request_id": request_id
+            }
+        else:
+            return {
+                "status": "error",
+                "message": message,
+                "data": response_data,
+                "request_id": request_id
+            }
+        
+    except Exception as e:
+        db.rollback()
+        logger.error(f"Transfer failed: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 

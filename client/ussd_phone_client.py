@@ -76,19 +76,32 @@ Enter choice (0-5):
 Enter choice (1-4):
 """
     
-    def __init__(self, phone_number: str = None, server_url: str = None):
+    def __init__(self, phone_number: str = None, server_url: str = None, server_urls: List[str] = None):
         """
         Initialize USSD phone client
         
         Args:
             phone_number: User's phone number (default: interactive input)
-            server_url: Server base URL (default: http://localhost:8001)
+            server_url: Single server base URL (optional, for backward compatibility)
+            server_urls: List of server URLs to try (default: [localhost:8001, 8002, 8003])
         """
         self.phone_number = phone_number or self._prompt("Enter your phone number: ")
-        self.server_url = server_url or "http://localhost:8001"
         
-        # Initialize RPC client
-        self.client = MobileMoneyClient(base_url=self.server_url)
+        # Use server_urls list, or fall back to single server_url, or use defaults
+        if server_urls:
+            self.server_urls = server_urls
+        elif server_url:
+            self.server_urls = [server_url]
+        else:
+            # Default to all available servers for discovery
+            self.server_urls = [
+                "http://localhost:8001",
+                "http://localhost:8002",
+                "http://localhost:8003"
+            ]
+        
+        # Initialize RPC client with server list for automatic failover
+        self.client = MobileMoneyClient(server_urls=self.server_urls)
         
         # Session management
         self.sessions: Dict[str, USSDPhoneSession] = {}
@@ -138,10 +151,6 @@ Enter choice (1-4):
     def _start_session(self) -> bool:
         """Initialize session and load account"""
         try:
-            # Create session
-            self.current_session = USSDPhoneSession(self.phone_number)
-            self.sessions[self.phone_number] = self.current_session
-            
             # Try to discover server (find nearest server)
             print("🔍 Discovering nearest server...")
             result = self.client.discover_server(self.phone_number)
@@ -149,6 +158,62 @@ Enter choice (1-4):
             if not result.get('success'):
                 print(f"❌ Server discovery failed: {result.get('message')}")
                 return False
+            
+            # Verify account exists in database
+            print("🔍 Checking if account exists...")
+            # Try to fetch account info by phone number via balance check
+            account_check = self.client.check_balance(
+                account_id=None,
+                phone_number=self.phone_number
+            )
+            
+            if not account_check.get('success'):
+                # Account doesn't exist - offer to create one
+                print(f"❌ Account not found for {self.phone_number}")
+                print("\nWould you like to create a new account?")
+                create = self._prompt("Enter 'yes' to create account or 'no' to exit: ").strip().lower()
+                
+                if create == 'yes':
+                    account_name = self._prompt("Enter account holder name: ").strip()
+                    initial_balance_str = self._prompt("Enter initial balance (optional, default: 0): ").strip()
+                    try:
+                        initial_balance = float(initial_balance_str) if initial_balance_str else 0.0
+                    except ValueError:
+                        print("❌ Invalid balance amount")
+                        return False
+                    
+                    create_result = self.client.create_account(
+                        phone_number=self.phone_number,
+                        account_holder_name=account_name,
+                        initial_balance=initial_balance
+                    )
+                    
+                    if create_result.get('success'):
+                        self._display_response(
+                            "ACCOUNT CREATED",
+                            "Your account has been created successfully!",
+                            {"Phone": self.phone_number, 
+                             "Balance": f"${initial_balance}"}
+                        )
+                    else:
+                        print(f"❌ Failed to create account: {create_result.get('message')}")
+                        return False
+                else:
+                    print("❌ Cannot proceed without an account")
+                    return False
+            else:
+                # Account exists
+                account_data = account_check.get('data', {})
+                self._display_response(
+                    "ACCOUNT FOUND",
+                    "Account verified successfully!",
+                    {"Phone": self.phone_number, 
+                     "Balance": f"${account_data.get('balance', 0)}"}
+                )
+            
+            # Create session
+            self.current_session = USSDPhoneSession(self.phone_number)
+            self.sessions[self.phone_number] = self.current_session
             
             server_info = result.get('data', {})
             self._display_response(
@@ -263,14 +328,12 @@ Enter choice (1-4):
         
         if result['success']:
             balance = result['data']['balance']
-            account_id = result['data']['account_id']
             self._display_response(
                 "BALANCE",
                 f"Your account balance:",
                 {
                     "Phone": self.phone_number,
-                    "Balance": f"${balance}",
-                    "Account": account_id
+                    "Balance": f"${balance}"
                 }
             )
         else:

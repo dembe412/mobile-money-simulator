@@ -5,6 +5,7 @@ Starts the Mobile Money Server
 import uvicorn
 import logging
 import sys
+import os
 from pathlib import Path
 
 # Add project root to path
@@ -39,7 +40,10 @@ def main():
     logger.info("=" * 70 + "\n")
     
     # Uvicorn requires an import string when reload is enabled.
-    app_target = "src.api.routes:app" if app_config.APP_DEBUG else app
+    # IMPORTANT: Reload is DISABLED by default to prevent data loss from dropping tables
+    # on every file change. Set ENABLE_RELOAD=true environment variable to enable.
+    enable_reload = os.getenv("ENABLE_RELOAD", "false").lower() == "true"
+    app_target = "src.api.routes:app" if enable_reload else app
 
     # Start server
     uvicorn.run(
@@ -47,7 +51,7 @@ def main():
         host=server_config.SERVER_HOST,
         port=server_config.SERVER_PORT,
         log_level=app_config.LOG_LEVEL.lower(),
-        reload=app_config.APP_DEBUG
+        reload=enable_reload
     )
 
 
