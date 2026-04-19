@@ -1287,3 +1287,47 @@ DETAIL:  Key (account_id)=(752235731) is not present in table "accounts".
 2026-04-19 18:45:14,958 - src.core.operations - INFO - Deposit successful: 0707778888, Amount: 5000.0, Balance: 1005000.0000
 2026-04-19 18:45:14,974 - src.core.operations - INFO - Lock released for account 7
 2026-04-19 18:45:15,047 - src.core.idempotency - INFO - Request server_2_1776602714722_44f8d0e0_0707778888 updated to status completed
+2026-04-19 18:46:26,125 - __main__ - INFO - ======================================================================
+2026-04-19 18:46:26,126 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 18:46:26,126 - __main__ - INFO - ======================================================================
+2026-04-19 18:46:26,127 - __main__ - INFO - Server ID: server_2
+2026-04-19 18:46:26,127 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 18:46:26,128 - __main__ - INFO - Server Address: 0.0.0.0:8002
+2026-04-19 18:46:26,128 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 18:46:26,128 - __main__ - INFO - Environment: development
+2026-04-19 18:46:26,129 - __main__ - INFO - ======================================================================
+
+2026-04-19 18:46:26,204 - src.api.routes - INFO - Starting Mobile Money Server: server_2
+2026-04-19 18:46:26,410 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 18:46:26,411 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 18:46:34,800 - __main__ - INFO - ======================================================================
+2026-04-19 18:46:34,801 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 18:46:34,801 - __main__ - INFO - ======================================================================
+2026-04-19 18:46:34,802 - __main__ - INFO - Server ID: server_3
+2026-04-19 18:46:34,802 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 18:46:34,803 - __main__ - INFO - Server Address: 0.0.0.0:8003
+2026-04-19 18:46:34,803 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 18:46:34,803 - __main__ - INFO - Environment: development
+2026-04-19 18:46:34,804 - __main__ - INFO - ======================================================================
+
+2026-04-19 18:46:34,893 - src.api.routes - INFO - Starting Mobile Money Server: server_3
+2026-04-19 18:46:35,099 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 18:46:35,103 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 18:49:54,730 - src.core.idempotency - INFO - Request server_2_1776602994671_d9f073f1_0707778888 created for deposit
+2026-04-19 18:49:54,810 - src.core.operations - INFO - Lock acquired for account 7, request server_2_1776602994671_d9f073f1_0707778888
+2026-04-19 18:49:54,944 - src.core.operations - INFO - Deposit successful: 0707778888, Amount: 50000.0, Balance: 1055000.0000
+2026-04-19 18:49:54,960 - src.core.operations - INFO - Lock released for account 7
+2026-04-19 18:49:55,033 - src.core.idempotency - INFO - Request server_2_1776602994671_d9f073f1_0707778888 updated to status completed
+2026-04-19 18:52:34,801 - __main__ - INFO - ======================================================================
+2026-04-19 18:52:34,801 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 18:52:34,802 - __main__ - INFO - ======================================================================
+2026-04-19 18:52:34,802 - __main__ - INFO - Server ID: server_1
+2026-04-19 18:52:34,802 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 18:52:34,803 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 18:52:34,803 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 18:52:34,803 - __main__ - INFO - Environment: development
+2026-04-19 18:52:34,804 - __main__ - INFO - ======================================================================
+
+2026-04-19 18:52:34,871 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 18:52:35,032 - config.database - INFO - Database already initialized. Found 9 existing tables. Skipping initialization.
+2026-04-19 18:52:35,033 - src.api.routes - INFO - Database initialized successfully
