@@ -34,3 +34,218 @@ Multiple connection attempts failed. All failures were:
 2026-04-12 03:47:25,928 - __main__ - INFO - Environment: development
 2026-04-12 03:47:25,929 - __main__ - INFO - ======================================================================
 
+2026-04-19 16:20:10,956 - __main__ - INFO - ======================================================================
+2026-04-19 16:20:10,996 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 16:20:10,996 - __main__ - INFO - ======================================================================
+2026-04-19 16:20:10,997 - __main__ - INFO - Server ID: server_1
+2026-04-19 16:20:10,997 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 16:20:10,998 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 16:20:10,998 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 16:20:10,999 - __main__ - INFO - Environment: development
+2026-04-19 16:20:10,999 - __main__ - INFO - ======================================================================
+
+2026-04-19 16:20:13,922 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:20:14,044 - src.api.routes - ERROR - Database initialization failed: (psycopg2.OperationalError) could not translate host name "E256@localhost" to address: A non-recoverable error occurred during a database lookup. 
+
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2026-04-19 16:21:34,517 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:21:35,698 - src.api.routes - ERROR - Database initialization failed: (psycopg2.errors.DuplicateTable) relation "idx_phone_status" already exists
+
+[SQL: CREATE INDEX idx_phone_status ON notifications (phone_number, status)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:22:07,937 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:22:08,058 - config.database - INFO - Dropped existing tables
+2026-04-19 16:22:08,853 - config.database - ERROR - Database initialization error: (psycopg2.errors.DuplicateTable) relation "idx_phone_status" already exists
+
+[SQL: CREATE INDEX idx_phone_status ON notifications (phone_number, status)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:22:08,866 - src.api.routes - ERROR - Database initialization failed: (psycopg2.errors.DuplicateTable) relation "idx_phone_status" already exists
+
+[SQL: CREATE INDEX idx_phone_status ON notifications (phone_number, status)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:22:12,406 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:22:12,518 - config.database - INFO - Dropped existing tables
+2026-04-19 16:22:12,894 - config.database - ERROR - Database initialization error: (psycopg2.errors.DuplicateTable) relation "idx_phone_status" already exists
+
+[SQL: CREATE INDEX idx_phone_status ON notifications (phone_number, status)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:22:12,897 - src.api.routes - ERROR - Database initialization failed: (psycopg2.errors.DuplicateTable) relation "idx_phone_status" already exists
+
+[SQL: CREATE INDEX idx_phone_status ON notifications (phone_number, status)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:22:29,454 - __main__ - INFO - ======================================================================
+2026-04-19 16:22:29,455 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 16:22:29,456 - __main__ - INFO - ======================================================================
+2026-04-19 16:22:29,456 - __main__ - INFO - Server ID: server_1
+2026-04-19 16:22:29,456 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 16:22:29,457 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 16:22:29,458 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 16:22:29,459 - __main__ - INFO - Environment: development
+2026-04-19 16:22:29,460 - __main__ - INFO - ======================================================================
+
+2026-04-19 16:22:32,051 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:22:32,165 - config.database - INFO - Dropped existing tables
+2026-04-19 16:22:32,621 - config.database - ERROR - Database initialization error: (psycopg2.errors.DuplicateTable) relation "idx_phone_status" already exists
+
+[SQL: CREATE INDEX idx_phone_status ON notifications (phone_number, status)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:22:32,622 - src.api.routes - ERROR - Database initialization failed: (psycopg2.errors.DuplicateTable) relation "idx_phone_status" already exists
+
+[SQL: CREATE INDEX idx_phone_status ON notifications (phone_number, status)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:23:12,523 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:23:12,849 - config.database - INFO - Dropped all existing tables and indexes
+2026-04-19 16:23:13,261 - config.database - ERROR - Database initialization error: (psycopg2.errors.DuplicateTable) relation "idx_phone_status" already exists
+
+[SQL: CREATE INDEX idx_phone_status ON notifications (phone_number, status)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:23:13,261 - src.api.routes - ERROR - Database initialization failed: (psycopg2.errors.DuplicateTable) relation "idx_phone_status" already exists
+
+[SQL: CREATE INDEX idx_phone_status ON notifications (phone_number, status)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:23:45,258 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:23:45,538 - config.database - INFO - Dropped all existing tables and indexes
+2026-04-19 16:23:45,958 - config.database - ERROR - Database initialization error: (psycopg2.errors.DuplicateTable) relation "idx_phone_status" already exists
+
+[SQL: CREATE INDEX idx_phone_status ON notifications (phone_number, status)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:23:45,958 - src.api.routes - ERROR - Database initialization failed: (psycopg2.errors.DuplicateTable) relation "idx_phone_status" already exists
+
+[SQL: CREATE INDEX idx_phone_status ON notifications (phone_number, status)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:23:56,890 - __main__ - INFO - ======================================================================
+2026-04-19 16:23:56,892 - __main__ - INFO - Starting Mobile Money System v1.0.0
+2026-04-19 16:23:56,893 - __main__ - INFO - ======================================================================
+2026-04-19 16:23:56,894 - __main__ - INFO - Server ID: server_1
+2026-04-19 16:23:56,895 - __main__ - INFO - Server Name: Primary Server
+2026-04-19 16:23:56,895 - __main__ - INFO - Server Address: 0.0.0.0:8001
+2026-04-19 16:23:56,896 - __main__ - INFO - Database: localhost:5432/mobile_db
+2026-04-19 16:23:56,896 - __main__ - INFO - Environment: development
+2026-04-19 16:23:56,897 - __main__ - INFO - ======================================================================
+
+2026-04-19 16:23:59,215 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:23:59,461 - config.database - INFO - Dropped all existing tables and indexes
+2026-04-19 16:23:59,813 - config.database - ERROR - Database initialization error: (psycopg2.errors.DuplicateTable) relation "idx_phone_status" already exists
+
+[SQL: CREATE INDEX idx_phone_status ON notifications (phone_number, status)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:23:59,814 - src.api.routes - ERROR - Database initialization failed: (psycopg2.errors.DuplicateTable) relation "idx_phone_status" already exists
+
+[SQL: CREATE INDEX idx_phone_status ON notifications (phone_number, status)]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:26:20,263 - src.api.routes - ERROR - Account creation failed: (psycopg2.errors.UndefinedTable) relation "accounts" does not exist
+LINE 2: FROM accounts 
+             ^
+
+[SQL: SELECT accounts.account_id AS accounts_account_id, accounts.phone_number AS accounts_phone_number, accounts.account_holder_name AS accounts_account_holder_name, accounts.balance AS accounts_balance, accounts.currency AS accounts_currency, accounts.account_status AS accounts_account_status, accounts.created_at AS accounts_created_at, accounts.updated_at AS accounts_updated_at, accounts.created_by_server AS accounts_created_by_server, accounts.last_modified_by_server AS accounts_last_modified_by_server, accounts.version AS accounts_version 
+FROM accounts 
+WHERE accounts.phone_number = %(phone_number_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'phone_number_1': '075346363', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:26:30,555 - src.api.routes - ERROR - Account creation failed: (psycopg2.errors.UndefinedTable) relation "accounts" does not exist
+LINE 2: FROM accounts 
+             ^
+
+[SQL: SELECT accounts.account_id AS accounts_account_id, accounts.phone_number AS accounts_phone_number, accounts.account_holder_name AS accounts_account_holder_name, accounts.balance AS accounts_balance, accounts.currency AS accounts_currency, accounts.account_status AS accounts_account_status, accounts.created_at AS accounts_created_at, accounts.updated_at AS accounts_updated_at, accounts.created_by_server AS accounts_created_by_server, accounts.last_modified_by_server AS accounts_last_modified_by_server, accounts.version AS accounts_version 
+FROM accounts 
+WHERE accounts.phone_number = %(phone_number_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'phone_number_1': '075346363', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:26:40,839 - src.api.routes - ERROR - Account creation failed: (psycopg2.errors.UndefinedTable) relation "accounts" does not exist
+LINE 2: FROM accounts 
+             ^
+
+[SQL: SELECT accounts.account_id AS accounts_account_id, accounts.phone_number AS accounts_phone_number, accounts.account_holder_name AS accounts_account_holder_name, accounts.balance AS accounts_balance, accounts.currency AS accounts_currency, accounts.account_status AS accounts_account_status, accounts.created_at AS accounts_created_at, accounts.updated_at AS accounts_updated_at, accounts.created_by_server AS accounts_created_by_server, accounts.last_modified_by_server AS accounts_last_modified_by_server, accounts.version AS accounts_version 
+FROM accounts 
+WHERE accounts.phone_number = %(phone_number_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'phone_number_1': '075346363', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:27:24,106 - src.api.routes - ERROR - Deposit failed: (psycopg2.errors.UndefinedTable) relation "requests" does not exist
+LINE 2: FROM requests 
+             ^
+
+[SQL: SELECT requests.request_id AS requests_request_id, requests.account_id AS requests_account_id, requests.phone_number AS requests_phone_number, requests.operation_type AS requests_operation_type, requests.request_data AS requests_request_data, requests.status AS requests_status, requests.response_code AS requests_response_code, requests.response_data AS requests_response_data, requests.error_message AS requests_error_message, requests.client_ip AS requests_client_ip, requests.created_at AS requests_created_at, requests.updated_at AS requests_updated_at, requests.expires_at AS requests_expires_at, requests.server_id AS requests_server_id 
+FROM requests 
+WHERE requests.request_id = %(request_id_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'request_id_1': 'server_1_1776594443907_3577657b_0752235731', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:27:26,216 - src.api.routes - ERROR - Deposit failed: (psycopg2.errors.UndefinedTable) relation "requests" does not exist
+LINE 2: FROM requests 
+             ^
+
+[SQL: SELECT requests.request_id AS requests_request_id, requests.account_id AS requests_account_id, requests.phone_number AS requests_phone_number, requests.operation_type AS requests_operation_type, requests.request_data AS requests_request_data, requests.status AS requests_status, requests.response_code AS requests_response_code, requests.response_data AS requests_response_data, requests.error_message AS requests_error_message, requests.client_ip AS requests_client_ip, requests.created_at AS requests_created_at, requests.updated_at AS requests_updated_at, requests.expires_at AS requests_expires_at, requests.server_id AS requests_server_id 
+FROM requests 
+WHERE requests.request_id = %(request_id_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'request_id_1': 'server_1_1776594446158_21448c80_0752235731', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:27:28,334 - src.api.routes - ERROR - Deposit failed: (psycopg2.errors.UndefinedTable) relation "requests" does not exist
+LINE 2: FROM requests 
+             ^
+
+[SQL: SELECT requests.request_id AS requests_request_id, requests.account_id AS requests_account_id, requests.phone_number AS requests_phone_number, requests.operation_type AS requests_operation_type, requests.request_data AS requests_request_data, requests.status AS requests_status, requests.response_code AS requests_response_code, requests.response_data AS requests_response_data, requests.error_message AS requests_error_message, requests.client_ip AS requests_client_ip, requests.created_at AS requests_created_at, requests.updated_at AS requests_updated_at, requests.expires_at AS requests_expires_at, requests.server_id AS requests_server_id 
+FROM requests 
+WHERE requests.request_id = %(request_id_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'request_id_1': 'server_1_1776594448267_626a559f_0752235731', 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:27:35,308 - src.core.operations - ERROR - Balance check failed: (psycopg2.errors.UndefinedTable) relation "accounts" does not exist
+LINE 2: FROM accounts 
+             ^
+
+[SQL: SELECT accounts.account_id AS accounts_account_id, accounts.phone_number AS accounts_phone_number, accounts.account_holder_name AS accounts_account_holder_name, accounts.balance AS accounts_balance, accounts.currency AS accounts_currency, accounts.account_status AS accounts_account_status, accounts.created_at AS accounts_created_at, accounts.updated_at AS accounts_updated_at, accounts.created_by_server AS accounts_created_by_server, accounts.last_modified_by_server AS accounts_last_modified_by_server, accounts.version AS accounts_version 
+FROM accounts 
+WHERE accounts.account_id = %(account_id_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'account_id_1': 752235731, 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2026-04-19 16:31:47,854 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:31:48,126 - config.database - INFO - Dropped all existing tables and related objects
+2026-04-19 16:31:48,547 - config.database - INFO - Database initialized successfully
+2026-04-19 16:31:48,550 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 16:33:56,616 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:33:56,782 - config.database - INFO - Dropped all existing tables and related objects
+2026-04-19 16:33:57,181 - config.database - INFO - Database initialized successfully
+2026-04-19 16:33:57,182 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 16:34:55,860 - src.core.idempotency - ERROR - Failed to create request entry: (psycopg2.errors.ForeignKeyViolation) insert or update on table "requests" violates foreign key constraint "requests_account_id_fkey"
+DETAIL:  Key (account_id)=(752235731) is not present in table "accounts".
+
+[SQL: INSERT INTO requests (request_id, account_id, phone_number, operation_type, request_data, status, response_code, error_message, client_ip, created_at, updated_at, expires_at, server_id) VALUES (%(request_id)s, %(account_id)s, %(phone_number)s, %(operation_type)s, %(request_data)s, %(status)s, %(response_code)s, %(error_message)s, %(client_ip)s, %(created_at)s, %(updated_at)s, %(expires_at)s, %(server_id)s)]
+[parameters: {'request_id': 'server_1_1776594895618_4960fe5a_0752235731', 'account_id': 752235731, 'phone_number': '0752235731', 'operation_type': 'deposit', 'request_data': '{"amount": 3000000.0}', 'status': 'received', 'response_code': None, 'error_message': None, 'client_ip': '0.0.0.0', 'created_at': datetime.datetime(2026, 4, 19, 13, 34, 55, 779299), 'updated_at': datetime.datetime(2026, 4, 19, 13, 34, 55, 779299), 'expires_at': datetime.datetime(2026, 4, 19, 14, 34, 55, 777299), 'server_id': 'server_1'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2026-04-19 16:34:56,081 - src.core.operations - ERROR - Failed to acquire lock: (psycopg2.errors.ForeignKeyViolation) insert or update on table "account_locks" violates foreign key constraint "account_locks_account_id_fkey"
+DETAIL:  Key (account_id)=(752235731) is not present in table "accounts".
+
+[SQL: INSERT INTO account_locks (account_id, lock_holder_server, request_id, lock_type, acquired_at, expires_at, reason) VALUES (%(account_id)s, %(lock_holder_server)s, %(request_id)s, %(lock_type)s, %(acquired_at)s, %(expires_at)s, %(reason)s) RETURNING account_locks.lock_id]
+[parameters: {'account_id': 752235731, 'lock_holder_server': 'server_1', 'request_id': 'server_1_1776594895618_4960fe5a_0752235731', 'lock_type': 'exclusive', 'acquired_at': datetime.datetime(2026, 4, 19, 13, 34, 56, 72300), 'expires_at': datetime.datetime(2026, 4, 19, 13, 35, 26, 70296), 'reason': 'Operation in progress'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2026-04-19 16:34:56,148 - src.core.idempotency - WARNING - Request server_1_1776594895618_4960fe5a_0752235731 not found for update
+2026-04-19 16:36:14,529 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:36:14,741 - config.database - INFO - Dropped all existing tables and related objects
+2026-04-19 16:36:15,302 - config.database - INFO - Database initialized successfully
+2026-04-19 16:36:15,303 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 16:36:22,762 - src.core.idempotency - ERROR - Failed to create request entry: (psycopg2.errors.ForeignKeyViolation) insert or update on table "requests" violates foreign key constraint "requests_account_id_fkey"
+DETAIL:  Key (account_id)=(752235731) is not present in table "accounts".
+
+[SQL: INSERT INTO requests (request_id, account_id, phone_number, operation_type, request_data, status, response_code, error_message, client_ip, created_at, updated_at, expires_at, server_id) VALUES (%(request_id)s, %(account_id)s, %(phone_number)s, %(operation_type)s, %(request_data)s, %(status)s, %(response_code)s, %(error_message)s, %(client_ip)s, %(created_at)s, %(updated_at)s, %(expires_at)s, %(server_id)s)]
+[parameters: {'request_id': 'server_1_1776594982504_da1a30f6_0752235731', 'account_id': 752235731, 'phone_number': '0752235731', 'operation_type': 'deposit', 'request_data': '{"amount": 3000000.0}', 'status': 'received', 'response_code': None, 'error_message': None, 'client_ip': '0.0.0.0', 'created_at': datetime.datetime(2026, 4, 19, 13, 36, 22, 751959), 'updated_at': datetime.datetime(2026, 4, 19, 13, 36, 22, 751959), 'expires_at': datetime.datetime(2026, 4, 19, 14, 36, 22, 749954), 'server_id': 'server_1'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2026-04-19 16:36:22,845 - src.core.operations - ERROR - Failed to acquire lock: (psycopg2.errors.ForeignKeyViolation) insert or update on table "account_locks" violates foreign key constraint "account_locks_account_id_fkey"
+DETAIL:  Key (account_id)=(752235731) is not present in table "accounts".
+
+[SQL: INSERT INTO account_locks (account_id, lock_holder_server, request_id, lock_type, acquired_at, expires_at, reason) VALUES (%(account_id)s, %(lock_holder_server)s, %(request_id)s, %(lock_type)s, %(acquired_at)s, %(expires_at)s, %(reason)s) RETURNING account_locks.lock_id]
+[parameters: {'account_id': 752235731, 'lock_holder_server': 'server_1', 'request_id': 'server_1_1776594982504_da1a30f6_0752235731', 'lock_type': 'exclusive', 'acquired_at': datetime.datetime(2026, 4, 19, 13, 36, 22, 836949), 'expires_at': datetime.datetime(2026, 4, 19, 13, 36, 52, 835948), 'reason': 'Operation in progress'}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2026-04-19 16:36:22,928 - src.core.idempotency - WARNING - Request server_1_1776594982504_da1a30f6_0752235731 not found for update
+2026-04-19 16:39:32,211 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:39:32,358 - config.database - INFO - Dropped all existing tables and related objects
+2026-04-19 16:39:32,941 - config.database - INFO - Database initialized successfully
+2026-04-19 16:39:32,946 - src.api.routes - INFO - Database initialized successfully
+2026-04-19 16:43:40,117 - src.api.routes - INFO - Starting Mobile Money Server: server_1
+2026-04-19 16:43:40,334 - config.database - INFO - Dropped all existing tables and related objects
+2026-04-19 16:43:40,947 - config.database - INFO - Database initialized successfully
+2026-04-19 16:43:40,947 - src.api.routes - INFO - Database initialized successfully

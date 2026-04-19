@@ -2,7 +2,9 @@
 Configuration management for Mobile Money System
 """
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 from typing import List, Dict, Optional
+from urllib.parse import quote
 import os
 
 
@@ -13,8 +15,7 @@ class ServerConfig(BaseSettings):
     SERVER_HOST: str = os.getenv("SERVER_HOST", "0.0.0.0")
     SERVER_PORT: int = int(os.getenv("SERVER_PORT", "8001"))
     
-    class Config:
-        env_file = ".env"
+    model_config = ConfigDict(env_file=".env", extra="ignore")
 
 
 class DatabaseConfig(BaseSettings):
@@ -27,13 +28,13 @@ class DatabaseConfig(BaseSettings):
     
     @property
     def DATABASE_URL(self) -> str:
-        # Use psycopg (v3) driver for better compatibility with newer Python versions.
-        return f"postgresql+psycopg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        # Use psycopg2 driver with URL-encoded password to handle special characters
+        encoded_password = quote(self.DB_PASSWORD, safe='')
+        return f"postgresql+psycopg2://{self.DB_USER}:{encoded_password}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
     
     ECHO_SQL: bool = os.getenv("ECHO_SQL", "false").lower() == "true"
     
-    class Config:
-        env_file = ".env"
+    model_config = ConfigDict(env_file=".env", extra="ignore")
 
 
 class RedisConfig(BaseSettings):
@@ -49,8 +50,7 @@ class RedisConfig(BaseSettings):
             return f"redis://:{self.REDIS_PASSWORD}@{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}/{self.REDIS_DB}"
     
-    class Config:
-        env_file = ".env"
+    model_config = ConfigDict(env_file=".env", extra="ignore")
 
 
 class OperationConfig(BaseSettings):
@@ -60,8 +60,7 @@ class OperationConfig(BaseSettings):
     OPERATION_RETRY_COUNT: int = int(os.getenv("OPERATION_RETRY_COUNT", "3"))
     OPERATION_RETRY_DELAY: int = int(os.getenv("OPERATION_RETRY_DELAY", "1000"))
     
-    class Config:
-        env_file = ".env"
+    model_config = ConfigDict(env_file=".env", extra="ignore")
 
 
 class ReplicationConfig(BaseSettings):
@@ -88,8 +87,7 @@ class ReplicationConfig(BaseSettings):
             "http://localhost:8003",
         ]
     
-    class Config:
-        env_file = ".env"
+    model_config = ConfigDict(env_file=".env", extra="ignore")
 
 
 class SecurityConfig(BaseSettings):
@@ -98,8 +96,7 @@ class SecurityConfig(BaseSettings):
     API_TOKEN_EXPIRY: int = int(os.getenv("API_TOKEN_EXPIRY", "3600"))
     MAX_REQUEST_SIZE: int = int(os.getenv("MAX_REQUEST_SIZE", "10485760"))
     
-    class Config:
-        env_file = ".env"
+    model_config = ConfigDict(env_file=".env", extra="ignore")
 
 
 class USSDConfig(BaseSettings):
@@ -107,8 +104,7 @@ class USSDConfig(BaseSettings):
     USSD_SESSION_TIMEOUT: int = int(os.getenv("USSD_SESSION_TIMEOUT", "180"))
     USSD_REQUEST_TIMEOUT: int = int(os.getenv("USSD_REQUEST_TIMEOUT", "60"))
     
-    class Config:
-        env_file = ".env"
+    model_config = ConfigDict(env_file=".env", extra="ignore")
 
 
 class NotificationConfig(BaseSettings):
@@ -122,8 +118,7 @@ class NotificationConfig(BaseSettings):
     SMS_GATEWAY_URL: Optional[str] = os.getenv("SMS_GATEWAY_URL", None)
     SMS_GATEWAY_API_KEY: Optional[str] = os.getenv("SMS_GATEWAY_API_KEY", None)
     
-    class Config:
-        env_file = ".env"
+    model_config = ConfigDict(env_file=".env", extra="ignore")
 
 
 class AppConfig(BaseSettings):
@@ -135,8 +130,7 @@ class AppConfig(BaseSettings):
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
     TIMEZONE: str = os.getenv("TIMEZONE", "Africa/Nairobi")
     
-    class Config:
-        env_file = ".env"
+    model_config = ConfigDict(env_file=".env", extra="ignore")
 
 
 # Create singleton instances

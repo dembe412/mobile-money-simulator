@@ -1,7 +1,7 @@
 """
 Database connection and session management
 """
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine, event, text, inspect
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import NullPool
 import logging
@@ -38,8 +38,29 @@ def set_sqlite_pragma(dbapi_conn, connection_record):
 def init_db():
     """Initialize database (create all tables)"""
     from src.models import Base
-    Base.metadata.create_all(bind=engine)
-    logger.info("Database initialized")
+    try:
+        # Drop all tables using CASCADE (drops dependent indexes, constraints, etc.)
+        with engine.begin() as conn:
+            # First, drop all views (if any)
+            conn.execute(text("""
+                DO $$ 
+                DECLARE 
+                    r RECORD;
+                BEGIN
+                    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') 
+                    LOOP
+                        EXECUTE 'DROP TABLE IF EXISTS "' || r.tablename || '" CASCADE';
+                    END LOOP;
+                END $$;
+            """))
+            logger.info("Dropped all existing tables and related objects")
+        
+        # Create all tables fresh
+        Base.metadata.create_all(bind=engine)
+        logger.info("Database initialized successfully")
+    except Exception as e:
+        logger.error(f"Database initialization error: {e}")
+        raise
 
 
 def drop_db():

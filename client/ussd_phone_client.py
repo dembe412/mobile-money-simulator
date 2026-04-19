@@ -203,7 +203,7 @@ Enter choice (1-4):
                 "Deposit completed!",
                 {
                     "Amount": f"{result['data']['amount']}",
-                    "Balance": f"{result['data']['balance']}",
+                    "Balance": f"{result['data']['balance_after']}",
                     "Time": datetime.now().strftime("%H:%M:%S")
                 }
             )
@@ -246,7 +246,7 @@ Enter choice (1-4):
                 "Withdrawal completed!",
                 {
                     "Amount": f"{result['data']['amount']}",
-                    "Balance": f"{result['data']['balance']}",
+                    "Balance": f"{result['data']['balance_after']}",
                     "Time": datetime.now().strftime("%H:%M:%S")
                 }
             )

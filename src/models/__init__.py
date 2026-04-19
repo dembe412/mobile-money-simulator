@@ -244,7 +244,7 @@ class Notification(Base):
     transaction = relationship("Transaction", back_populates="notifications")
     
     __table_args__ = (
-        Index('idx_phone_status', 'phone_number', 'status'),
+        Index('idx_notification_phone_status', 'phone_number', 'status'),
     )
 
 
