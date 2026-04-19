@@ -254,30 +254,66 @@ class ServerDiscovery:
     def route_request(self, phone_number: str) -> Dict:
         """
         Route a request to the appropriate server
+        All servers are equal - request routes to server determined by hash.
         
         Args:
             phone_number: Client phone number
             
         Returns:
-            Dictionary with routing information
+            Dictionary with routing information (all servers in failover order)
         """
-        primary = self.find_server_for_phone(phone_number)
-        replicas = self.find_replica_servers(phone_number, count=2)
+        # Get all servers in hash order starting from the assigned server
+        all_nodes = self.hash_ring.get_nodes(phone_number, count=len(self.hash_ring.nodes))
         
         return {
             "phone_number": phone_number,
-            "primary_server": {
-                "id": primary.node_id,
-                "url": self.get_server_url(primary)
+            "assigned_server": {
+                "id": all_nodes[0].node_id,
+                "url": self.get_server_url(all_nodes[0]),
+                "host": all_nodes[0].host,
+                "port": all_nodes[0].port,
+                "hash_position": self.hash_ring._hash(phone_number)
             },
-            "replica_servers": [
+            "failover_servers": [
                 {
                     "id": node.node_id,
-                    "url": self.get_server_url(node)
+                    "url": self.get_server_url(node),
+                    "host": node.host,
+                    "port": node.port
                 }
-                for node in replicas
-            ]
+                for node in all_nodes[1:]
+            ],
+            "all_servers": [
+                {
+                    "id": node.node_id,
+                    "url": self.get_server_url(node),
+                    "host": node.host,
+                    "port": node.port
+                }
+                for node in all_nodes
+            ],
+            "routing_key": phone_number,
+            "strategy": "consistent_hashing",
+            "note": "All servers are equal. Request routes to assigned server via hash. Failover uses ring order."
         }
+    
+    def get_all_servers_for_failover(self) -> List[Dict]:
+        """
+        Get all available servers ordered by preference
+        Used for client failover strategy
+        
+        Returns:
+            List of server dictionaries in priority order
+        """
+        servers = []
+        for node in self.hash_ring.get_all_nodes():
+            servers.append({
+                "id": node.node_id,
+                "url": self.get_server_url(node),
+                "host": node.host,
+                "port": node.port
+            })
+        return sorted(servers, key=lambda x: x["port"])
 
 
 # Example usage and testing

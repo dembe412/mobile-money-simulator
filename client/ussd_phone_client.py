@@ -469,7 +469,7 @@ Enter choice (1-4):
         # Initialize session
         if not self._start_session():
             print("❌ Failed to start session. Make sure the server is running.")
-            print(f"   Server URL: {self.server_url}")
+            print(f"   Server URLs tried: {', '.join(self.server_urls)}")
             return
         
         # Run main menu
@@ -502,18 +502,23 @@ def main():
         type=str
     )
     parser.add_argument(
-        "--server",
-        help="Server URL (default: http://localhost:8001)",
+        "--servers",
+        help="Comma-separated server URLs (default: auto-discover from all available servers)",
         type=str,
-        default="http://localhost:8001"
+        default=None
     )
     
     args = parser.parse_args()
     
-    # Create and run client
+    # Parse server list if provided
+    server_urls = None
+    if args.servers:
+        server_urls = [s.strip() for s in args.servers.split(',')]
+    
+    # Create and run client (uses distributed hashing for auto-discovery)
     client = USSDPhoneClient(
         phone_number=args.phone,
-        server_url=args.server
+        server_urls=server_urls  # None = use defaults [8001, 8002, 8003]
     )
     client.run()
 

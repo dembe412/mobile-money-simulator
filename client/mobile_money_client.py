@@ -172,7 +172,8 @@ class MobileMoneyClient:
     
     def discover_server(self, phone_number: str) -> Dict:
         """
-        Discover server for a phone number
+        Discover server for a phone number using consistent hashing
+        All servers are equal - request routes to server determined by hash.
         
         Args:
             phone_number: Client phone number
@@ -188,15 +189,34 @@ class MobileMoneyClient:
             
             if success:
                 routing = response.get("routing", {})
-                primary_server = routing.get("primary_server", {})
+                assigned_server = routing.get("assigned_server", {})
+                failover_servers = routing.get("failover_servers", [])
+                all_servers = routing.get("all_servers", [])
+                
+                # Build server list with assigned server first, then failover servers
+                servers = []
+                if assigned_server.get("url"):
+                    servers.append(assigned_server.get("url"))
+                
+                # Add failover servers for automatic failover
+                for server in failover_servers:
+                    if server.get("url") and server.get("url") not in servers:
+                        servers.append(server.get("url"))
+                
+                # Update client's server list for automatic failover
+                if servers:
+                    self.server_urls = servers
+                    logger.info(f"Updated server list for {phone_number}: {servers}")
                 
                 return {
                     "success": True,
                     "message": "Server discovered",
                     "data": {
-                        "server_id": primary_server.get("server_id", "Unknown"),
-                        "port": primary_server.get("port", "8001"),
-                        "url": primary_server.get("url")
+                        "server_id": assigned_server.get("id", "Unknown"),
+                        "url": assigned_server.get("url"),
+                        "assigned_server": assigned_server,
+                        "failover_servers": failover_servers,
+                        "all_servers": all_servers
                     }
                 }
             
