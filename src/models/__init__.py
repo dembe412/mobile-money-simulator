@@ -200,6 +200,16 @@ class ServerStatus(Base):
     sync_lag_seconds = Column(Integer, default=0)
     total_transactions = Column(Integer, default=0)
     error_count = Column(Integer, default=0)
+    
+    # Gossip protocol state
+    peer_vector_clock = Column(JSON)  # {server_id: version, ...}
+    sync_position = Column(Integer, default=0)  # up to which event_id synced
+    ops_behind = Column(Integer, default=0)  # how many events behind
+    
+    # Replication tracking
+    last_event_received = Column(DateTime)
+    pending_events_count = Column(Integer, default=0)
+    
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -263,4 +273,83 @@ class AuditLog(Base):
     
     __table_args__ = (
         Index('idx_action_created', 'action', 'created_at'),
+    )
+
+
+class Event(Base):
+    """Immutable event log for event sourcing"""
+    __tablename__ = "events"
+    
+    event_id = Column(String(100), primary_key=True)
+    event_type = Column(String(50), nullable=False, index=True)  # withdraw, deposit, transfer_out, transfer_in
+    account_id = Column(Integer, ForeignKey("accounts.account_id"), nullable=False, index=True)
+    request_id = Column(String(100), unique=True, nullable=False, index=True)
+    
+    amount = Column(Numeric(19, 4), nullable=False)
+    balance_before = Column(Numeric(19, 4), nullable=False)
+    balance_after = Column(Numeric(19, 4), nullable=False)
+    
+    # Causality tracking
+    vector_clock = Column(JSON, nullable=False)  # {server_id: version, ...}
+    
+    # Event metadata
+    server_id = Column(String(50), nullable=False, index=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    client_reference = Column(String(100))
+    
+    # Replication state
+    is_applied = Column(Boolean, default=False, index=True)
+    is_replicated = Column(Boolean, default=False, index=True)
+    replicated_to = Column(JSON)  # {server_id: timestamp, ...}
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_event_account_timestamp', 'account_id', 'timestamp'),
+        Index('idx_event_server_timestamp', 'server_id', 'timestamp'),
+    )
+
+
+class WriteAheadLog(Base):
+    """Write-ahead log for durability and recovery"""
+    __tablename__ = "write_ahead_log"
+    
+    log_id = Column(Integer, primary_key=True, autoincrement=True)
+    event_id = Column(String(100), ForeignKey("events.event_id"), nullable=False, unique=True)
+    
+    status = Column(
+        String(20),  # pending, applied, replicated
+        default="pending",
+        nullable=False,
+        index=True
+    )
+    
+    # Replication tracking
+    replicated_count = Column(Integer, default=0)  # how many peers have acked
+    required_replicas = Column(Integer, default=1)  # quorum size
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    applied_at = Column(DateTime)
+    replicated_at = Column(DateTime)
+    
+    __table_args__ = (
+        Index('idx_wal_status_created', 'status', 'created_at'),
+    )
+
+
+class EventReplicationState(Base):
+    """Track which events have been replicated to which peers"""
+    __tablename__ = "event_replication_state"
+    
+    replication_state_id = Column(Integer, primary_key=True, autoincrement=True)
+    event_id = Column(String(100), ForeignKey("events.event_id"), nullable=False, index=True)
+    server_id = Column(String(50), nullable=False, index=True)
+    
+    acked = Column(Boolean, default=False)
+    acked_at = Column(DateTime)
+    
+    created_at = Column(DateTime, default=datetime.utcnow)
+    
+    __table_args__ = (
+        Index('idx_replication_event_server', 'event_id', 'server_id'),
     )

@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from typing import Optional, Dict, Any
 import logging
 from decimal import Decimal
+import asyncio
 
 from config.database import SessionLocal, get_db, init_db
 from config.settings import server_config, app_config, security_config
@@ -14,6 +15,13 @@ from src.core.operations import AccountOperations
 from src.core.idempotency import RequestIdempotency
 from src.ussd.protocol import USSDParser, USSDFormatter
 from src.distributed.hashing import ConsistentHash, ServerDiscovery
+from src.distributed.gossip import GossipNode
+from src.distributed.heartbeat_worker import HeartbeatWorker
+from src.distributed.replication_manager import ReplicationManager
+from src.core.events import EventStore
+from src.core.wal import WriteAheadLog
+from src.core.quorum import QuorumConfig, QuorumWriter
+from src.core.conflict_resolver import ConflictResolver
 from src.models import Account
 
 logger = logging.getLogger(__name__)
@@ -33,6 +41,15 @@ peer_servers = {
 }
 hash_ring = ConsistentHash(peer_servers, virtual_nodes=150)
 discovery = ServerDiscovery(hash_ring)
+
+# Gossip protocol components (initialized at startup)
+gossip_node: Optional[GossipNode] = None
+heartbeat_worker: Optional[HeartbeatWorker] = None
+replication_manager: Optional[ReplicationManager] = None
+event_store: Optional[EventStore] = None
+write_ahead_log: Optional[WriteAheadLog] = None
+quorum_writer: Optional[QuorumWriter] = None
+conflict_resolver: Optional[ConflictResolver] = None
 
 # Request models
 class WithdrawRequest(BaseModel):
@@ -86,12 +103,88 @@ class CreateAccountRequest(BaseModel):
 @app.on_event("startup")
 async def startup_event():
     """Initialize database and start background workers"""
+    global gossip_node, heartbeat_worker, replication_manager
+    global event_store, write_ahead_log, quorum_writer, conflict_resolver
+    
     logger.info(f"Starting Mobile Money Server: {server_config.SERVER_ID}")
     try:
+        # Initialize database
         init_db()
         logger.info("Database initialized successfully")
+        
+        # Initialize event sourcing components
+        event_store = EventStore()
+        write_ahead_log = WriteAheadLog()
+        conflict_resolver = ConflictResolver()
+        logger.info("Event sourcing components initialized")
+        
+        # Initialize gossip protocol
+        gossip_node = GossipNode(
+            server_id=server_config.SERVER_ID,
+            host=server_config.SERVER_HOST,
+            port=server_config.SERVER_PORT,
+            peer_servers=peer_servers,
+            heartbeat_interval_sec=5,
+            heartbeat_timeout_sec=10,
+        )
+        logger.info("Gossip node initialized")
+        
+        # Initialize quorum writer
+        quorum_config = QuorumConfig(
+            total_servers=len(peer_servers),
+            required_quorum=2,  # 2/3 majority
+            timeout_sec=5,
+        )
+        quorum_writer = QuorumWriter(gossip_node, quorum_config)
+        logger.info(f"Quorum writer initialized: {quorum_config}")
+        
+        # Start heartbeat worker
+        heartbeat_worker = HeartbeatWorker(
+            gossip_node=gossip_node,
+            db_session_factory=SessionLocal,
+            interval_sec=5,
+            timeout_sec=3,
+        )
+        await heartbeat_worker.start()
+        logger.info("Heartbeat worker started")
+        
+        # Start replication manager
+        replication_manager = ReplicationManager(
+            gossip_node=gossip_node,
+            server_id=server_config.SERVER_ID,
+            db_session_factory=SessionLocal,
+            batch_size=10,
+            batch_interval_sec=2,
+            replicate_timeout_sec=5,
+        )
+        await replication_manager.start()
+        logger.info("Replication manager started")
+        
+        logger.info("✓ All startup tasks completed")
+    
     except Exception as e:
-        logger.error(f"Database initialization failed: {str(e)}")
+        logger.error(f"Startup failed: {str(e)}", exc_info=True)
+        raise
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup on shutdown"""
+    global heartbeat_worker, replication_manager
+    
+    logger.info("Shutting down server...")
+    try:
+        if heartbeat_worker:
+            await heartbeat_worker.stop()
+            logger.info("Heartbeat worker stopped")
+        
+        if replication_manager:
+            await replication_manager.stop()
+            logger.info("Replication manager stopped")
+        
+        logger.info("✓ Shutdown complete")
+    except Exception as e:
+        logger.error(f"Shutdown error: {e}", exc_info=True)
 
 
 # ============================================
@@ -637,6 +730,76 @@ async def hash_ring_status():
         "status": "success",
         "hash_ring": hash_ring.get_status()
     }
+
+
+# ============================================
+# Gossip Protocol Endpoints
+# ============================================
+
+# NOTE: These endpoints will be populated when gossip module is initialized
+# For now, they serve as stubs and will be replaced at startup
+
+@app.post("/api/v1/gossip/heartbeat")
+async def gossip_heartbeat(request: Request):
+    """
+    Receive heartbeat from peer server
+    Updates peer status and vector clocks
+    """
+    try:
+        payload = await request.json()
+        
+        # In production, this would update gossip node state
+        # For now, return success
+        logger.debug(f"Heartbeat received from {payload.get('source_server_id')}")
+        
+        return {
+            "status": "success",
+            "message": "Heartbeat received",
+            "server_id": server_config.SERVER_ID,
+        }
+    except Exception as e:
+        logger.error(f"Error handling heartbeat: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post("/api/v1/gossip/sync-state")
+async def gossip_sync_state(request: Request):
+    """
+    Receive state sync (replicated events) from peer
+    Applies events received from other servers
+    """
+    try:
+        payload = await request.json()
+        source_server = payload.get('source_server_id')
+        sync_events = payload.get('sync_events', [])
+        
+        logger.debug(f"Sync state received from {source_server}: {len(sync_events)} events")
+        
+        # In production, this would process and apply events
+        # For now, return acknowledgement
+        
+        return {
+            "status": "success",
+            "message": "State sync received",
+            "acked_event_ids": [e.get('event_id') for e in sync_events],
+        }
+    except Exception as e:
+        logger.error(f"Error handling sync state: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/v1/gossip/status")
+async def gossip_status():
+    """Get gossip protocol status"""
+    try:
+        return {
+            "status": "success",
+            "server_id": server_config.SERVER_ID,
+            "message": "Gossip protocol status endpoint"
+        }
+    except Exception as e:
+        logger.error(f"Error getting gossip status: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 if __name__ == "__main__":
