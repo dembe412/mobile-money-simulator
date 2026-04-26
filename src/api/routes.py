@@ -748,9 +748,16 @@ async def gossip_heartbeat(request: Request):
     try:
         payload = await request.json()
         
-        # In production, this would update gossip node state
-        # For now, return success
-        logger.debug(f"Heartbeat received from {payload.get('source_server_id')}")
+        if gossip_node is None:
+            logger.warning("Received heartbeat but gossip_node is not initialized")
+            return {"status": "error", "message": "Gossip node not initialized"}
+            
+        from src.distributed.gossip import GossipMessage
+        msg = GossipMessage.from_dict(payload)
+        
+        # Update gossip node state
+        gossip_node.handle_heartbeat(msg)
+        logger.debug(f"Heartbeat handled from {msg.source_server_id}")
         
         return {
             "status": "success",
@@ -758,7 +765,7 @@ async def gossip_heartbeat(request: Request):
             "server_id": server_config.SERVER_ID,
         }
     except Exception as e:
-        logger.error(f"Error handling heartbeat: {e}")
+        logger.error(f"Error handling heartbeat: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 
@@ -773,18 +780,32 @@ async def gossip_sync_state(request: Request):
         source_server = payload.get('source_server_id')
         sync_events = payload.get('sync_events', [])
         
+        if replication_manager is None:
+            logger.warning("Received sync state but replication_manager is not initialized")
+            return {"status": "error", "message": "Replication manager not initialized"}
+            
         logger.debug(f"Sync state received from {source_server}: {len(sync_events)} events")
         
-        # In production, this would process and apply events
-        # For now, return acknowledgement
+        from src.core.events import Event
         
+        acked_event_ids = []
+        for event_dict in sync_events:
+            try:
+                # Assuming Event has a from_dict method or can be constructed this way
+                event = Event.from_dict(event_dict) if hasattr(Event, 'from_dict') else Event(**event_dict)
+                applied = await replication_manager.handle_replicated_event(event)
+                if applied:
+                    acked_event_ids.append(event.event_id)
+            except Exception as ev_err:
+                logger.error(f"Error processing replicated event: {ev_err}")
+                
         return {
             "status": "success",
             "message": "State sync received",
-            "acked_event_ids": [e.get('event_id') for e in sync_events],
+            "acked_event_ids": acked_event_ids,
         }
     except Exception as e:
-        logger.error(f"Error handling sync state: {e}")
+        logger.error(f"Error handling sync state: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 

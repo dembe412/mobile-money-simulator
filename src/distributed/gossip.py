@@ -96,6 +96,64 @@ class GossipMessage:
         if self.acked_event_ids:
             d['acked_event_ids'] = self.acked_event_ids
         return d
+        
+    @classmethod
+    def from_dict(cls, data: dict):
+        """Create GossipMessage from dictionary"""
+        msg = cls(
+            message_type=GossipMessageType(data['message_type']),
+            source_server_id=data['source_server_id'],
+            timestamp=datetime.fromisoformat(data['timestamp']),
+            vector_clock=data.get('vector_clock', {})
+        )
+        
+        if 'server_info' in data and data['server_info']:
+            info = data['server_info']
+            last_contact = datetime.fromisoformat(info['last_contact']) if info.get('last_contact') else None
+            msg.server_info = PeerInfo(
+                server_id=info['server_id'],
+                host=info['host'],
+                port=info['port'],
+                status=info.get('status', 'online'),
+                last_contact=last_contact,
+                vector_clock=info.get('vector_clock'),
+                sync_position=info.get('sync_position', 0),
+                ops_behind=info.get('ops_behind', 0),
+                pending_events_count=info.get('pending_events_count', 0),
+                error_count=info.get('error_count', 0),
+                latency_ms=info.get('latency_ms', 0.0)
+            )
+            
+        if 'peer_list' in data and data['peer_list']:
+            msg.peer_list = []
+            for info in data['peer_list']:
+                last_contact = datetime.fromisoformat(info['last_contact']) if info.get('last_contact') else None
+                msg.peer_list.append(PeerInfo(
+                    server_id=info['server_id'],
+                    host=info['host'],
+                    port=info['port'],
+                    status=info.get('status', 'online'),
+                    last_contact=last_contact,
+                    vector_clock=info.get('vector_clock'),
+                    sync_position=info.get('sync_position', 0),
+                    ops_behind=info.get('ops_behind', 0),
+                    pending_events_count=info.get('pending_events_count', 0),
+                    error_count=info.get('error_count', 0),
+                    latency_ms=info.get('latency_ms', 0.0)
+                ))
+                
+        if 'event_id' in data:
+            msg.event_id = data['event_id']
+        if 'event_data' in data:
+            msg.event_data = data['event_data']
+        if 'sync_events' in data:
+            msg.sync_events = data['sync_events']
+        if 'sync_position' in data:
+            msg.sync_position = data['sync_position']
+        if 'acked_event_ids' in data:
+            msg.acked_event_ids = data['acked_event_ids']
+            
+        return msg
 
 
 class GossipNode:
