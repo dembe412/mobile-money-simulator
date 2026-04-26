@@ -8,7 +8,7 @@ import uuid
 import logging
 from typing import Tuple, Optional, Dict, Any
 
-from src.models import Request, RequestStatus
+from src.models import Request
 from config.settings import server_config
 
 logger = logging.getLogger(__name__)
@@ -27,25 +27,16 @@ class RequestIdempotency:
         client_reference: Optional[str] = None
     ) -> str:
         """
-        Generate unique request ID
-        
-        Format: {server_id}_{timestamp_ms}_{uuid}_{phone_number}
-        
-        Args:
-            phone_number: Client phone number
-            operation_type: Type of operation
-            client_reference: Optional client-provided reference
-            
-        Returns:
-            Unique request ID string
+        Generate unique request ID.
+        If client_reference is provided, it is used as the basis for idempotency.
         """
+        if client_reference:
+            # If client provided a reference, use it directly (prefixed by phone for safety)
+            return f"ref_{phone_number}_{client_reference}"
+            
         timestamp = int(datetime.utcnow().timestamp() * 1000)
         unique_id = str(uuid.uuid4())[:8]
-        
-        request_id = f"{server_config.SERVER_ID}_{timestamp}_{unique_id}_{phone_number}"
-        
-        logger.debug(f"Generated request ID: {request_id} for {operation_type}")
-        return request_id
+        return f"{server_config.SERVER_ID}_{timestamp}_{unique_id}_{phone_number}"
     
     @staticmethod
     def create_request_entry(
@@ -91,7 +82,7 @@ class RequestIdempotency:
                 phone_number=phone_number,
                 operation_type=operation_type,
                 request_data=request_data,
-                status=RequestStatus.RECEIVED.value,
+                status="received",
                 client_ip=client_ip,
                 server_id=server_config.SERVER_ID,
                 expires_at=datetime.utcnow() + timedelta(seconds=ttl_seconds)
@@ -100,7 +91,7 @@ class RequestIdempotency:
             db.add(request)
             db.commit()
             
-            logger.info(f"Request {request_id} created for {operation_type}")
+            logger.debug(f"Request {request_id} created for {operation_type}")
             return True
             
         except Exception as e:
@@ -147,7 +138,7 @@ class RequestIdempotency:
             return False, None
         
         # Check if completed
-        if request.status == RequestStatus.COMPLETED.value:
+        if request.status == "completed":
             logger.info(f"Request {request_id} is duplicate, returning cached response")
             return True, request.response_data
         
@@ -194,7 +185,7 @@ class RequestIdempotency:
             db.add(request)
             db.commit()
             
-            logger.info(f"Request {request_id} updated to status {status}")
+            logger.debug(f"Request {request_id} updated to status {status}")
             return True
             
         except Exception as e:

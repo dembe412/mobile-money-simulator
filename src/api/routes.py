@@ -1,5 +1,6 @@
 """
-FastAPI routes and API endpoints
+FastAPI routes and API endpoints.
+Peer discovery is fully dynamic — no hardcoded server lists.
 """
 from fastapi import FastAPI, HTTPException, Request, Depends
 from sqlalchemy.orm import Session
@@ -10,7 +11,7 @@ from decimal import Decimal
 import asyncio
 
 from config.database import SessionLocal, get_db, init_db
-from config.settings import server_config, app_config, security_config
+from config.settings import server_config, app_config, security_config, database_config, replication_config
 from src.core.operations import AccountOperations
 from src.core.idempotency import RequestIdempotency
 from src.ussd.protocol import USSDParser, USSDFormatter
@@ -18,6 +19,7 @@ from src.distributed.hashing import ConsistentHash, ServerDiscovery
 from src.distributed.gossip import GossipNode
 from src.distributed.heartbeat_worker import HeartbeatWorker
 from src.distributed.replication_manager import ReplicationManager
+from src.distributed.discovery_registry import ServiceRegistry, DiscoveryWorker
 from src.core.events import EventStore
 from src.core.wal import WriteAheadLog
 from src.core.quorum import QuorumConfig, QuorumWriter
@@ -30,26 +32,30 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title=app_config.APP_NAME,
     version=app_config.APP_VERSION,
-    description="Distributed Mobile Money System"
+    description="Distributed Mobile Money System — SQLite, No Docker"
 )
 
-# Initialize hash ring for server discovery
-peer_servers = {
-    "server_1": {"host": "localhost", "port": 8001},
-    "server_2": {"host": "localhost", "port": 8002},
-    "server_3": {"host": "localhost", "port": 8003},
-}
-hash_ring = ConsistentHash(peer_servers, virtual_nodes=150)
+# Hash ring starts empty; DiscoveryWorker populates it dynamically
+hash_ring = ConsistentHash({}, virtual_nodes=replication_config.HASH_VIRTUAL_NODES)
+# Register this server itself in the ring immediately
+hash_ring.add_node(
+    server_config.SERVER_ID,
+    server_config.SERVER_HOST,
+    server_config.SERVER_PORT,
+)
 discovery = ServerDiscovery(hash_ring)
 
-# Gossip protocol components (initialized at startup)
-gossip_node: Optional[GossipNode] = None
-heartbeat_worker: Optional[HeartbeatWorker] = None
-replication_manager: Optional[ReplicationManager] = None
-event_store: Optional[EventStore] = None
-write_ahead_log: Optional[WriteAheadLog] = None
-quorum_writer: Optional[QuorumWriter] = None
-conflict_resolver: Optional[ConflictResolver] = None
+# Distributed components (all initialised at startup)
+gossip_node:          Optional[GossipNode]         = None
+heartbeat_worker:     Optional[HeartbeatWorker]    = None
+replication_manager:  Optional[ReplicationManager] = None
+discovery_worker:     Optional[DiscoveryWorker]    = None
+service_registry:     Optional[ServiceRegistry]    = None
+event_store:          Optional[EventStore]         = None
+write_ahead_log:      Optional[WriteAheadLog]      = None
+quorum_writer:        Optional[QuorumWriter]       = None
+conflict_resolver:    Optional[ConflictResolver]   = None
+
 
 # Request models
 class WithdrawRequest(BaseModel):
@@ -102,86 +108,114 @@ class CreateAccountRequest(BaseModel):
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database and start background workers"""
-    global gossip_node, heartbeat_worker, replication_manager
-    global event_store, write_ahead_log, quorum_writer, conflict_resolver
-    
+    """Initialise database, start background workers, register with cluster."""
+    global gossip_node, heartbeat_worker, replication_manager, discovery_worker
+    global event_store, write_ahead_log, quorum_writer, conflict_resolver, service_registry
+
     logger.info(f"Starting Mobile Money Server: {server_config.SERVER_ID}")
     try:
-        # Initialize database
+        # 1. Database
         init_db()
-        logger.info("Database initialized successfully")
-        
-        # Initialize event sourcing components
-        event_store = EventStore()
+        logger.info(f"✓ SQLite database ready: {database_config.DB_PATH}")
+
+        # 2. Event sourcing
+        event_store    = EventStore()
         write_ahead_log = WriteAheadLog()
         conflict_resolver = ConflictResolver()
-        logger.info("Event sourcing components initialized")
-        
-        # Initialize gossip protocol
+        logger.info("✓ Event sourcing components initialized")
+
+        # 3. Gossip node — starts empty; discovery fills it
         gossip_node = GossipNode(
             server_id=server_config.SERVER_ID,
             host=server_config.SERVER_HOST,
             port=server_config.SERVER_PORT,
-            peer_servers=peer_servers,
-            heartbeat_interval_sec=5,
-            heartbeat_timeout_sec=10,
+            peer_servers={},          # <-- empty on purpose
+            heartbeat_interval_sec=replication_config.HEARTBEAT_INTERVAL,
+            heartbeat_timeout_sec=replication_config.PEER_TTL_SECONDS,
         )
-        logger.info("Gossip node initialized")
-        
-        # Initialize quorum writer
+        logger.info("✓ Gossip node initialized (dynamic discovery active)")
+
+        # 4. Quorum writer
         quorum_config = QuorumConfig(
-            total_servers=len(peer_servers),
-            required_quorum=2,  # 2/3 majority
+            total_servers=3,          # assume 3-node cluster; adapts at runtime
+            required_quorum=2,
             timeout_sec=5,
         )
         quorum_writer = QuorumWriter(gossip_node, quorum_config)
-        logger.info(f"Quorum writer initialized: {quorum_config}")
-        
-        # Start heartbeat worker
+        logger.info("✓ Quorum writer initialized")
+
+        # 5. Service discovery — shared SQLite registry
+        service_registry = ServiceRegistry(database_config.REGISTRY_DB_PATH)
+
+        def _on_peer_added(sid: str, host: str, port: int):
+            """Called when a new peer appears in the registry."""
+            gossip_node.add_peer(sid, host, port)
+            hash_ring.add_node(sid, host, port)
+            logger.info(f"[Route] Peer added to hash ring: {sid} @ {host}:{port}")
+
+        def _on_peer_removed(sid: str):
+            """Called when a peer's TTL expires."""
+            gossip_node.remove_peer(sid)
+            hash_ring.remove_node(sid)
+            logger.warning(f"[Route] Peer removed from hash ring: {sid}")
+
+        discovery_worker = DiscoveryWorker(
+            registry=service_registry,
+            server_id=server_config.SERVER_ID,
+            host=server_config.SERVER_HOST,
+            port=server_config.SERVER_PORT,
+            interval_sec=replication_config.DISCOVERY_INTERVAL,
+            ttl_seconds=replication_config.PEER_TTL_SECONDS,
+            on_peer_added=_on_peer_added,
+            on_peer_removed=_on_peer_removed,
+        )
+        await discovery_worker.start()
+        logger.info("✓ Discovery worker started")
+
+        # 6. Heartbeat worker
         heartbeat_worker = HeartbeatWorker(
             gossip_node=gossip_node,
             db_session_factory=SessionLocal,
-            interval_sec=5,
+            interval_sec=replication_config.HEARTBEAT_INTERVAL,
             timeout_sec=3,
         )
         await heartbeat_worker.start()
-        logger.info("Heartbeat worker started")
-        
-        # Start replication manager
+        logger.info("✓ Heartbeat worker started")
+
+        # 7. Replication manager
         replication_manager = ReplicationManager(
             gossip_node=gossip_node,
             server_id=server_config.SERVER_ID,
             db_session_factory=SessionLocal,
             batch_size=10,
-            batch_interval_sec=2,
-            replicate_timeout_sec=5,
+            batch_interval_sec=replication_config.REPLICATION_INTERVAL,
+            replicate_timeout_sec=replication_config.REPLICATION_TIMEOUT,
         )
         await replication_manager.start()
-        logger.info("Replication manager started")
-        
-        logger.info("✓ All startup tasks completed")
-    
+        logger.info("✓ Replication manager started")
+
+        logger.info("=" * 60)
+        logger.info(f"  {server_config.SERVER_ID} is ONLINE")
+        logger.info(f"  DB  : {database_config.DB_PATH}")
+        logger.info(f"  Reg : {database_config.REGISTRY_DB_PATH}")
+        logger.info("=" * 60)
+
     except Exception as e:
-        logger.error(f"Startup failed: {str(e)}", exc_info=True)
+        logger.error(f"Startup failed: {e}", exc_info=True)
         raise
 
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    """Cleanup on shutdown"""
-    global heartbeat_worker, replication_manager
-    
+    """Graceful shutdown — deregister from cluster, stop workers."""
     logger.info("Shutting down server...")
     try:
+        if discovery_worker:
+            await discovery_worker.stop()
         if heartbeat_worker:
             await heartbeat_worker.stop()
-            logger.info("Heartbeat worker stopped")
-        
         if replication_manager:
             await replication_manager.stop()
-            logger.info("Replication manager stopped")
-        
         logger.info("✓ Shutdown complete")
     except Exception as e:
         logger.error(f"Shutdown error: {e}", exc_info=True)
@@ -809,18 +843,42 @@ async def gossip_sync_state(request: Request):
         raise HTTPException(status_code=500, detail=str(e))
 
 
+
 @app.get("/api/v1/gossip/status")
 async def gossip_status():
-    """Get gossip protocol status"""
-    try:
-        return {
-            "status": "success",
-            "server_id": server_config.SERVER_ID,
-            "message": "Gossip protocol status endpoint"
-        }
-    except Exception as e:
-        logger.error(f"Error getting gossip status: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+    """Real-time gossip node stats."""
+    if gossip_node is None:
+        return {"status": "not_initialized"}
+    stats = gossip_node.get_gossip_stats()
+    return {"status": "success", "data": stats}
+
+
+@app.get("/api/v1/cluster/status")
+async def cluster_status():
+    """
+    Full cluster view: all active nodes, hash ring, replication lag.
+    Useful for monitoring from bash: curl http://localhost:8001/api/v1/cluster/status
+    """
+    active_peers = []
+    if service_registry:
+        active_peers = service_registry.get_all_active(
+            ttl_seconds=replication_config.PEER_TTL_SECONDS
+        )
+
+    replication_stats = replication_manager.get_replication_stats() if replication_manager else {}
+    gossip_stats      = gossip_node.get_gossip_stats()              if gossip_node      else {}
+
+    return {
+        "server_id":         server_config.SERVER_ID,
+        "host":              server_config.SERVER_HOST,
+        "port":              server_config.SERVER_PORT,
+        "db_path":           str(database_config.DB_PATH),
+        "active_cluster":    active_peers,
+        "hash_ring":         hash_ring.get_status(),
+        "gossip":            gossip_stats,
+        "replication":       replication_stats,
+        "known_peers_count": len(active_peers),
+    }
 
 
 if __name__ == "__main__":

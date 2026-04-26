@@ -80,9 +80,20 @@ def setup_logging(server_id: str, server_port: int, log_level: str = "INFO"):
     # 3. Console handler with proper encoding
     console_handler = logging.StreamHandler()
     console_handler.setLevel(getattr(logging, log_level.upper(), logging.INFO))
-    console_handler.setFormatter(logging.Formatter(console_format))
+    # Simpler console format: [server_1] [INFO] Message
+    console_short_format = '[%(server_id)s] [%(levelname)s] %(message)s'
+    console_handler.setFormatter(logging.Formatter(console_short_format))
     console_handler.addFilter(context_filter)
     root_logger.addHandler(console_handler)
+
+    # Silence noisy external libraries unless in DEBUG mode
+    if log_level.upper() != "DEBUG":
+        logging.getLogger("httpx").setLevel(logging.WARNING)
+        logging.getLogger("httpcore").setLevel(logging.WARNING)
+        logging.getLogger("uvicorn").setLevel(logging.WARNING)
+        logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
+        logging.getLogger("uvicorn.error").setLevel(logging.WARNING)
+        logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
     
     # Get main logger
     logger = logging.getLogger(__name__)

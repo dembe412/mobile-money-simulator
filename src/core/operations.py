@@ -153,7 +153,7 @@ class AccountOperations:
             db.add(lock)
             db.commit()
             
-            logger.info(f"Lock acquired for account {account_id}, request {request_id}")
+            logger.debug(f"Lock acquired for account {account_id}, request {request_id}")
             return True, "Lock acquired"
             
         except Exception as e:
@@ -186,7 +186,7 @@ class AccountOperations:
             db.commit()
             
             if result > 0:
-                logger.info(f"Lock released for account {account_id}")
+                logger.debug(f"Lock released for account {account_id}")
                 return True
             return False
             
@@ -312,7 +312,7 @@ class AccountOperations:
             db.add(transaction)
             db.commit()
             
-            logger.info(f"Withdrawal successful: {phone_number}, Amount: {amount}, Balance: {account.balance}")
+            logger.info(f"Withdrawal: {amount} KES from {phone_number} (Balance: {account.balance})")
             
             response = {
                 "transaction_id": transaction.transaction_id,
@@ -447,7 +447,7 @@ class AccountOperations:
             db.add(transaction)
             db.commit()
             
-            logger.info(f"Deposit successful: {phone_number}, Amount: {amount}, Balance: {account.balance}")
+            logger.info(f"Deposit: {amount} KES to {phone_number} (Balance: {account.balance})")
             
             response = {
                 "transaction_id": transaction.transaction_id,
@@ -739,7 +739,7 @@ class AccountOperations:
             db.add(to_transaction)
             db.commit()
             
-            logger.info(f"Transfer successful: {from_phone_number} -> {to_phone_number}, Amount: {amount}")
+            logger.info(f"Transfer: {amount} KES from {from_phone_number} to {to_phone_number}")
             
             response = {
                 "from_phone": from_phone_number,

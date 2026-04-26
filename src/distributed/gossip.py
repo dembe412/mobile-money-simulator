@@ -218,7 +218,39 @@ class GossipNode:
             self.vector_clock[server_id] = 0
         
         logger.info(f"Initialized {len(self.peers)} peer(s): {list(self.peers.keys())}")
-    
+
+    # ── Dynamic peer management (called by DiscoveryWorker) ──────────────────
+
+    def add_peer(self, server_id: str, host: str, port: int) -> None:
+        """
+        Dynamically add a newly discovered peer.
+        Safe to call if the peer is already known (idempotent).
+        """
+        if server_id == self.server_id:
+            return  # never add ourselves
+        if server_id in self.peers:
+            return  # already known
+        self.peers[server_id] = PeerInfo(
+            server_id=server_id,
+            host=host,
+            port=port,
+            status="online",
+            last_contact=datetime.utcnow(),  # Set initial contact so it's healthy
+            vector_clock={s: 0 for s in self.vector_clock},
+        )
+        # Give the new peer a slot in our vector clock
+        if server_id not in self.vector_clock:
+            self.vector_clock[server_id] = 0
+        logger.info(f"[Gossip] Peer added dynamically: {server_id} @ {host}:{port}")
+
+    def remove_peer(self, server_id: str) -> None:
+        """
+        Dynamically remove a peer that has left the cluster (TTL expired).
+        """
+        if server_id in self.peers:
+            del self.peers[server_id]
+            logger.warning(f"[Gossip] Peer removed from cluster: {server_id}")
+
     def increment_vector_clock(self):
         """Increment our clock entry (called after applying event)"""
         self.vector_clock[self.server_id] = self.vector_clock.get(self.server_id, 0) + 1

@@ -88,12 +88,11 @@ class ReplicationManager:
         """Main loop that batches and replicates events"""
         while self.running:
             try:
-                # Check if we have enough events or interval elapsed
-                if len(self.pending_replication) >= self.batch_size:
-                    # Batch is full, replicate now
-                    batch = self.pending_replication[:self.batch_size]
+                if self.pending_replication:
+                    # Replicate all pending events up to batch_size
+                    to_replicate = self.pending_replication[:self.batch_size]
                     self.pending_replication = self.pending_replication[self.batch_size:]
-                    await self._replicate_batch(batch)
+                    await self._replicate_batch(to_replicate)
             
             except Exception as e:
                 logger.error(f"Error in replication loop: {e}", exc_info=True)
@@ -127,7 +126,7 @@ class ReplicationManager:
             logger.debug("No healthy peers for replication")
             return
         
-        logger.info(f"Replicating {len(batch)} events to {len(peers)} peers")
+        logger.debug(f"Replicating {len(batch)} events to {len(peers)} peers")
         
         # Send to each peer (parallel)
         tasks = [
