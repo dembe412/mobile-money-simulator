@@ -266,8 +266,80 @@ class ReplicationManager:
                 'timestamp': datetime.utcnow().isoformat(),
                 'event': event.to_dict(),
             }
-            return False
         
+        # Apply LWW to database
+        try:
+            from src.models import Event as EventModel, Account
+            db = self.db_session_factory()
+            try:
+                # 1. Fetch or create account stub
+                account = db.query(Account).filter(Account.account_id == event.account_id).first()
+                if not account:
+                    # Create stub account
+                    account = Account(
+                        account_id=event.account_id,
+                        phone_number=f"unknown_{event.account_id}_{event.event_id[:5]}",
+                        account_holder_name="Unknown (Replicated)",
+                        balance=event.balance_after or Decimal(0),
+                        created_by_server=event.server_id
+                    )
+                    db.add(account)
+                    db.flush()
+                else:
+                    # LWW check against account's last update
+                    last_event = db.query(EventModel).filter(
+                        EventModel.account_id == event.account_id
+                    ).order_by(EventModel.timestamp.desc()).first()
+                    
+                    is_newer = True
+                    if last_event and event.timestamp:
+                        if last_event.timestamp > event.timestamp:
+                            is_newer = False
+                            logger.warning(f"LWW reject: last_event ({last_event.timestamp}) > event ({event.timestamp})")
+                        elif last_event.timestamp == event.timestamp:
+                            # Tie-breaker
+                            if last_event.server_id > event.server_id:
+                                is_newer = False
+                                logger.warning(f"LWW reject tie-break: last ({last_event.server_id}) > event ({event.server_id})")
+                    
+                    if is_newer and event.balance_after is not None:
+                        # Prevent negative balance during replication
+                        new_balance = event.balance_after
+                        if new_balance < 0:
+                            new_balance = Decimal(0)
+                            logger.warning(f"Prevented negative balance on replication for {event.account_id}")
+                        
+                        account.balance = new_balance
+                        account.version += 1
+                        account.last_modified_by_server = event.server_id
+                    else:
+                        logger.warning(f"Not updating balance for {event.account_id}. is_newer={is_newer}")
+                
+                # 2. Save event in DB
+                event_record = EventModel(
+                    event_id=event.event_id,
+                    event_type=event.event_type.value,
+                    account_id=event.account_id,
+                    request_id=event.request_id,
+                    amount=event.amount,
+                    balance_before=event.balance_before,
+                    balance_after=event.balance_after,
+                    vector_clock=event.vector_clock,
+                    server_id=event.server_id,
+                    timestamp=event.timestamp,
+                    client_reference=event.client_reference,
+                    is_applied=True,
+                    is_replicated=False
+                )
+                db.add(event_record)
+                db.commit()
+                
+            finally:
+                db.close()
+        except Exception as e:
+            logger.error(f"Failed to apply replicated event to DB: {e}")
+            return False
+
         # Update our vector clock from event
         self.gossip_node.update_vector_clock(event.vector_clock)
         

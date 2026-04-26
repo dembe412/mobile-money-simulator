@@ -63,8 +63,9 @@ class RequestIdempotency:
             ttl_seconds: Time-to-live for request record
             
         Returns:
-            True if created successfully
+            True if created successfully, False if it's a duplicate request
         """
+        import sqlalchemy.exc
         try:
             # Check if request already exists (duplicate)
             existing = db.query(Request).filter(
@@ -94,6 +95,10 @@ class RequestIdempotency:
             logger.debug(f"Request {request_id} created for {operation_type}")
             return True
             
+        except sqlalchemy.exc.IntegrityError:
+            db.rollback()
+            logger.warning(f"Request {request_id} already exists - DUPLICATE (caught via IntegrityError)")
+            return False
         except Exception as e:
             db.rollback()
             logger.error(f"Failed to create request entry: {str(e)}")

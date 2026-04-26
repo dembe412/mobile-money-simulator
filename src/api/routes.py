@@ -347,21 +347,24 @@ async def withdraw(req: WithdrawRequest, db: Session = Depends(get_db)):
             req.client_reference
         )
         
-        # Check for duplicate request
-        is_dup, cached_response = RequestIdempotency.is_duplicate_request(db, request_id)
-        if is_dup:
-            return {
-                "status": "success",
-                "message": "Duplicate request - cached response",
-                "data": cached_response,
-                "request_id": request_id
-            }
-        
-        # Create request entry
-        RequestIdempotency.create_request_entry(
+        # Create request entry first (relies on DB unique constraint for concurrency)
+        created = RequestIdempotency.create_request_entry(
             db, request_id, account_id, req.phone_number,
             "withdraw", {"amount": req.amount}, req.client_ip
         )
+        
+        if not created:
+            # Duplicate request
+            req_entry = RequestIdempotency.get_request(db, request_id)
+            if req_entry and req_entry.status == "completed":
+                return {
+                    "status": "success",
+                    "message": "Duplicate request - cached response",
+                    "data": req_entry.response_data,
+                    "request_id": request_id
+                }
+            else:
+                raise HTTPException(status_code=409, detail="Request already in progress or failed")
         
         # Execute withdrawal
         success, message, response_data = AccountOperations.withdraw(
@@ -423,21 +426,24 @@ async def deposit(req: DepositRequest, db: Session = Depends(get_db)):
             req.client_reference
         )
         
-        # Check for duplicate
-        is_dup, cached_response = RequestIdempotency.is_duplicate_request(db, request_id)
-        if is_dup:
-            return {
-                "status": "success",
-                "message": "Duplicate request - cached response",
-                "data": cached_response,
-                "request_id": request_id
-            }
-        
-        # Create request entry
-        RequestIdempotency.create_request_entry(
+        # Create request entry first
+        created = RequestIdempotency.create_request_entry(
             db, request_id, account_id, req.phone_number,
             "deposit", {"amount": req.amount}, req.client_ip
         )
+        
+        if not created:
+            # Duplicate request
+            req_entry = RequestIdempotency.get_request(db, request_id)
+            if req_entry and req_entry.status == "completed":
+                return {
+                    "status": "success",
+                    "message": "Duplicate request - cached response",
+                    "data": req_entry.response_data,
+                    "request_id": request_id
+                }
+            else:
+                raise HTTPException(status_code=409, detail="Request already in progress or failed")
         
         # Execute deposit
         success, message, response_data = AccountOperations.deposit(
@@ -579,21 +585,24 @@ async def transfer(req: TransferRequest, db: Session = Depends(get_db)):
             req.client_reference
         )
         
-        # Check for duplicate request
-        is_dup, cached_response = RequestIdempotency.is_duplicate_request(db, request_id)
-        if is_dup:
-            return {
-                "status": "success",
-                "message": "Duplicate request - cached response",
-                "data": cached_response,
-                "request_id": request_id
-            }
-        
-        # Create request entry
-        RequestIdempotency.create_request_entry(
+        # Create request entry first
+        created = RequestIdempotency.create_request_entry(
             db, request_id, req.from_account_id, req.from_phone_number,
             "transfer", {"amount": req.amount, "to": req.to_phone_number}, req.client_ip
         )
+        
+        if not created:
+            # Duplicate request
+            req_entry = RequestIdempotency.get_request(db, request_id)
+            if req_entry and req_entry.status == "completed":
+                return {
+                    "status": "success",
+                    "message": "Duplicate request - cached response",
+                    "data": req_entry.response_data,
+                    "request_id": request_id
+                }
+            else:
+                raise HTTPException(status_code=409, detail="Request already in progress or failed")
         
         # Execute transfer
         success, message, response_data = AccountOperations.transfer(

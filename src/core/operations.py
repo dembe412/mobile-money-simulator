@@ -206,59 +206,43 @@ class AccountOperations:
         """
         Withdraw amount from account (synchronous operation)
         Integrates event sourcing for distributed replication
-        
-        Args:
-            db: Database session
-            account_id: Account ID
-            phone_number: Phone number for audit
-            amount: Amount to withdraw
-            request_id: Unique request identifier
-            
-        Returns:
-            (success: bool, message: str, response_data: dict)
         """
-        lock_acquired = False
         event_id = None
         try:
             # Validate amount
             if amount <= 0:
                 return False, "Amount must be positive", {}
             
-            # Acquire lock
-            lock_success, lock_msg = AccountOperations.acquire_lock(
-                db, account_id, request_id
-            )
-            if not lock_success:
-                return False, f"Cannot process: {lock_msg}", {}
-            
-            lock_acquired = True
-            
-            # Get account with lock
-            account = db.query(Account).filter(
-                Account.account_id == account_id
-            ).with_for_update().first()
-            
+            # Fetch the account to check status and balance
+            account = db.query(Account).filter(Account.account_id == account_id).first()
             if not account:
                 return False, "Account not found", {}
-            
             if account.account_status != "active":
                 return False, f"Account is {account.account_status}", {}
-            
-            # Check balance
             if account.balance < amount:
                 return False, f"Insufficient balance. Have: {account.balance}, Need: {amount}", {
                     "current_balance": float(account.balance)
                 }
-            
-            # Record balance before
-            balance_before = account.balance
-            
-            # Debit account
-            account.balance -= amount
-            account.last_modified_by_server = server_config.SERVER_ID
-            account.version += 1
-            db.add(account)
-            db.flush()  # Flush to get updated values
+
+            # Atomic update
+            updated_count = db.query(Account).filter(
+                Account.account_id == account_id,
+                Account.balance >= amount,
+                Account.account_status == "active"
+            ).update({
+                Account.balance: Account.balance - amount,
+                Account.version: Account.version + 1,
+                Account.last_modified_by_server: server_config.SERVER_ID
+            }, synchronize_session="fetch")
+
+            if updated_count == 0:
+                db.rollback()
+                return False, "Concurrent update prevented withdrawal", {}
+
+            # Fetch updated account for correct balances
+            account = db.query(Account).filter(Account.account_id == account_id).first()
+            balance_after = account.balance
+            balance_before = balance_after + amount
             
             # Event Sourcing: Generate and persist withdraw event
             try:
@@ -271,7 +255,7 @@ class AccountOperations:
                         request_id=request_id,
                         amount=amount,
                         balance_before=balance_before,
-                        balance_after=account.balance,
+                        balance_after=balance_after,
                         server_id=server_config.SERVER_ID,
                         vector_clock=gossip_node.vector_clock.copy(),
                     )
@@ -279,19 +263,15 @@ class AccountOperations:
                     # Append to event store (non-blocking)
                     event_store.append(event)
                     event_id = event.event_id
-                    logger.debug(f"Withdraw event appended: {event_id}")
                     
                     # Mark as applied locally
                     event_store.mark_applied(event_id)
-                    logger.debug(f"Withdraw event marked applied: {event_id}")
                     
                     # Queue for replication (non-blocking)
                     replication_manager.queue_event_for_replication(event)
-                    logger.debug(f"Withdraw event queued for replication: {event_id}")
                     
                     # Increment vector clock
                     gossip_node.increment_vector_clock()
-                    logger.debug(f"Vector clock incremented for withdraw: {gossip_node.vector_clock}")
             except Exception as e:
                 # Graceful fallback: log but continue with DB operation
                 logger.warning(f"Event sourcing failed for withdraw (continuing): {str(e)}")
@@ -304,7 +284,7 @@ class AccountOperations:
                 transaction_type="withdraw",
                 amount=amount,
                 balance_before=balance_before,
-                balance_after=account.balance,
+                balance_after=balance_after,
                 status="success",
                 server_id=server_config.SERVER_ID,
                 processed_at=datetime.utcnow()
@@ -312,16 +292,15 @@ class AccountOperations:
             db.add(transaction)
             db.commit()
             
-            logger.info(f"Withdrawal: {amount} KES from {phone_number} (Balance: {account.balance})")
+            logger.info(f"Withdrawal: {amount} KES from {phone_number} (Balance: {balance_after})")
             
             response = {
                 "transaction_id": transaction.transaction_id,
                 "amount": float(amount),
-                "balance_after": float(account.balance),
+                "balance_after": float(balance_after),
                 "timestamp": transaction.created_at.isoformat()
             }
             
-            # Include event_id if available
             if event_id:
                 response["event_id"] = event_id
             
@@ -331,10 +310,6 @@ class AccountOperations:
             db.rollback()
             logger.error(f"Withdrawal failed: {str(e)}")
             return False, f"Withdrawal failed: {str(e)}", {}
-            
-        finally:
-            if lock_acquired:
-                AccountOperations.release_lock(db, account_id, request_id)
     
     @staticmethod
     def deposit(
@@ -347,53 +322,38 @@ class AccountOperations:
         """
         Deposit amount to account (synchronous operation)
         Integrates event sourcing for distributed replication
-        
-        Args:
-            db: Database session
-            account_id: Account ID
-            phone_number: Phone number
-            amount: Amount to deposit
-            request_id: Unique request identifier
-            
-        Returns:
-            (success: bool, message: str, response_data: dict)
         """
-        lock_acquired = False
         event_id = None
         try:
             # Validate amount
             if amount <= 0:
                 return False, "Amount must be positive", {}
             
-            # Acquire lock
-            lock_success, lock_msg = AccountOperations.acquire_lock(
-                db, account_id, request_id
-            )
-            if not lock_success:
-                return False, f"Cannot process: {lock_msg}", {}
-            
-            lock_acquired = True
-            
-            # Get account with lock
-            account = db.query(Account).filter(
-                Account.account_id == account_id
-            ).with_for_update().first()
-            
+            # Fetch the account to check status
+            account = db.query(Account).filter(Account.account_id == account_id).first()
             if not account:
                 return False, "Account not found", {}
-            
             if account.account_status != "active":
                 return False, f"Account is {account.account_status}", {}
-            
-            # Record balance before
-            balance_before = account.balance
-            
-            # Credit account
-            account.balance += amount
-            account.last_modified_by_server = server_config.SERVER_ID
-            account.version += 1
-            db.add(account)
-            db.flush()
+                
+            # Atomic update
+            updated_count = db.query(Account).filter(
+                Account.account_id == account_id,
+                Account.account_status == "active"
+            ).update({
+                Account.balance: Account.balance + amount,
+                Account.version: Account.version + 1,
+                Account.last_modified_by_server: server_config.SERVER_ID
+            }, synchronize_session="fetch")
+
+            if updated_count == 0:
+                db.rollback()
+                return False, "Concurrent update prevented deposit", {}
+
+            # Fetch updated account
+            account = db.query(Account).filter(Account.account_id == account_id).first()
+            balance_after = account.balance
+            balance_before = balance_after - amount
             
             # Event Sourcing: Generate and persist deposit event
             try:
@@ -406,7 +366,7 @@ class AccountOperations:
                         request_id=request_id,
                         amount=amount,
                         balance_before=balance_before,
-                        balance_after=account.balance,
+                        balance_after=balance_after,
                         server_id=server_config.SERVER_ID,
                         vector_clock=gossip_node.vector_clock.copy(),
                     )
@@ -414,19 +374,15 @@ class AccountOperations:
                     # Append to event store (non-blocking)
                     event_store.append(event)
                     event_id = event.event_id
-                    logger.debug(f"Deposit event appended: {event_id}")
                     
                     # Mark as applied locally
                     event_store.mark_applied(event_id)
-                    logger.debug(f"Deposit event marked applied: {event_id}")
                     
                     # Queue for replication (non-blocking)
                     replication_manager.queue_event_for_replication(event)
-                    logger.debug(f"Deposit event queued for replication: {event_id}")
                     
                     # Increment vector clock
                     gossip_node.increment_vector_clock()
-                    logger.debug(f"Vector clock incremented for deposit: {gossip_node.vector_clock}")
             except Exception as e:
                 # Graceful fallback: log but continue with DB operation
                 logger.warning(f"Event sourcing failed for deposit (continuing): {str(e)}")
@@ -439,7 +395,7 @@ class AccountOperations:
                 transaction_type="deposit",
                 amount=amount,
                 balance_before=balance_before,
-                balance_after=account.balance,
+                balance_after=balance_after,
                 status="success",
                 server_id=server_config.SERVER_ID,
                 processed_at=datetime.utcnow()
@@ -447,16 +403,15 @@ class AccountOperations:
             db.add(transaction)
             db.commit()
             
-            logger.info(f"Deposit: {amount} KES to {phone_number} (Balance: {account.balance})")
+            logger.info(f"Deposit: {amount} KES to {phone_number} (Balance: {balance_after})")
             
             response = {
                 "transaction_id": transaction.transaction_id,
                 "amount": float(amount),
-                "balance_after": float(account.balance),
+                "balance_after": float(balance_after),
                 "timestamp": transaction.created_at.isoformat()
             }
             
-            # Include event_id if available
             if event_id:
                 response["event_id"] = event_id
             
@@ -466,10 +421,6 @@ class AccountOperations:
             db.rollback()
             logger.error(f"Deposit failed: {str(e)}")
             return False, f"Deposit failed: {str(e)}", {}
-            
-        finally:
-            if lock_acquired:
-                AccountOperations.release_lock(db, account_id, request_id)
     
     @staticmethod
     def check_balance(
@@ -562,20 +513,7 @@ class AccountOperations:
         """
         Transfer amount from one account to another
         Integrates event sourcing for distributed replication
-        
-        Args:
-            db: Database session
-            from_account_id: Source account ID
-            from_phone_number: Source phone number
-            to_phone_number: Destination phone number
-            amount: Amount to transfer
-            request_id: Unique request identifier
-            
-        Returns:
-            (success: bool, message: str, response_data: dict)
         """
-        lock_acquired_from = False
-        lock_acquired_to = False
         out_event_id = None
         in_event_id = None
         try:
@@ -584,80 +522,68 @@ class AccountOperations:
                 return False, "Amount must be positive", {}
             
             # Find both accounts
-            from_account = db.query(Account).filter(
-                Account.account_id == from_account_id
-            ).first()
-            
+            from_account = db.query(Account).filter(Account.account_id == from_account_id).first()
             if not from_account:
                 return False, "Source account not found", {}
-            
             if from_account.account_status != "active":
                 return False, f"Source account is {from_account.account_status}", {}
             
-            to_account = db.query(Account).filter(
-                Account.phone_number == to_phone_number
-            ).first()
-            
+            to_account = db.query(Account).filter(Account.phone_number == to_phone_number).first()
             if not to_account:
                 return False, f"Destination account for {to_phone_number} not found", {}
-            
             if to_account.account_status != "active":
                 return False, f"Destination account is {to_account.account_status}", {}
             
-            # Acquire locks on both accounts (from first, then to)
-            lock_success, lock_msg = AccountOperations.acquire_lock(
-                db, from_account_id, request_id
-            )
-            if not lock_success:
-                return False, f"Cannot process: {lock_msg}", {}
-            lock_acquired_from = True
-            
-            # Acquire lock on destination account
-            to_request_id = f"{request_id}_to"
-            lock_success, lock_msg = AccountOperations.acquire_lock(
-                db, to_account.account_id, to_request_id
-            )
-            if not lock_success:
-                return False, f"Cannot process destination: {lock_msg}", {}
-            lock_acquired_to = True
-            
-            # Get accounts with locks
-            from_account = db.query(Account).filter(
-                Account.account_id == from_account_id
-            ).with_for_update().first()
-            
-            to_account = db.query(Account).filter(
-                Account.account_id == to_account.account_id
-            ).with_for_update().first()
-            
-            # Check source balance
             if from_account.balance < amount:
                 return False, f"Insufficient balance. Have: {from_account.balance}, Need: {amount}", {
                     "current_balance": float(from_account.balance)
                 }
+                
+            to_account_id = to_account.account_id
             
-            # Record balances before
-            from_balance_before = from_account.balance
-            to_balance_before = to_account.balance
+            # Atomic update for sender
+            updated_from = db.query(Account).filter(
+                Account.account_id == from_account_id,
+                Account.balance >= amount,
+                Account.account_status == "active"
+            ).update({
+                Account.balance: Account.balance - amount,
+                Account.version: Account.version + 1,
+                Account.last_modified_by_server: server_config.SERVER_ID
+            }, synchronize_session="fetch")
+
+            if updated_from == 0:
+                db.rollback()
+                return False, "Concurrent update prevented transfer (source)", {}
+                
+            # Atomic update for receiver
+            updated_to = db.query(Account).filter(
+                Account.account_id == to_account_id,
+                Account.account_status == "active"
+            ).update({
+                Account.balance: Account.balance + amount,
+                Account.version: Account.version + 1,
+                Account.last_modified_by_server: server_config.SERVER_ID
+            }, synchronize_session="fetch")
+
+            if updated_to == 0:
+                db.rollback()
+                return False, "Concurrent update prevented transfer (destination)", {}
+
+            # Fetch updated accounts
+            from_account = db.query(Account).filter(Account.account_id == from_account_id).first()
+            to_account = db.query(Account).filter(Account.account_id == to_account_id).first()
             
-            # Execute transfer
-            from_account.balance -= amount
-            to_account.balance += amount
-            from_account.last_modified_by_server = server_config.SERVER_ID
-            to_account.last_modified_by_server = server_config.SERVER_ID
-            from_account.version += 1
-            to_account.version += 1
-            
-            db.add(from_account)
-            db.add(to_account)
-            db.flush()
+            from_balance_after = from_account.balance
+            from_balance_before = from_balance_after + amount
+            to_balance_after = to_account.balance
+            to_balance_before = to_balance_after - amount
             
             # Event Sourcing: Generate and persist transfer events
             try:
                 event_store, replication_manager, gossip_node = get_event_sourcing_components()
                 
                 if event_store and replication_manager and gossip_node:
-                    # Create both transfer events with same request_id for atomicity
                     vector_clock = gossip_node.vector_clock.copy()
                     
                     out_event = create_transfer_out_event(
@@ -665,17 +591,17 @@ class AccountOperations:
                         request_id=request_id,
                         amount=amount,
                         balance_before=from_balance_before,
-                        balance_after=from_account.balance,
+                        balance_after=from_balance_after,
                         server_id=server_config.SERVER_ID,
                         vector_clock=vector_clock,
                     )
                     
                     in_event = create_transfer_in_event(
-                        account_id=to_account.account_id,
+                        account_id=to_account_id,
                         request_id=request_id,
                         amount=amount,
                         balance_before=to_balance_before,
-                        balance_after=to_account.balance,
+                        balance_after=to_balance_after,
                         server_id=server_config.SERVER_ID,
                         vector_clock=vector_clock,
                     )
@@ -683,27 +609,21 @@ class AccountOperations:
                     # Append both events
                     event_store.append(out_event)
                     out_event_id = out_event.event_id
-                    logger.debug(f"Transfer out event appended: {out_event_id}")
                     
                     event_store.append(in_event)
                     in_event_id = in_event.event_id
-                    logger.debug(f"Transfer in event appended: {in_event_id}")
                     
                     # Mark both as applied
                     event_store.mark_applied(out_event_id)
                     event_store.mark_applied(in_event_id)
-                    logger.debug(f"Transfer events marked applied: {out_event_id}, {in_event_id}")
                     
                     # Queue both for replication
                     replication_manager.queue_event_for_replication(out_event)
                     replication_manager.queue_event_for_replication(in_event)
-                    logger.debug(f"Transfer events queued for replication: {out_event_id}, {in_event_id}")
                     
                     # Increment vector clock (once for the pair)
                     gossip_node.increment_vector_clock()
-                    logger.debug(f"Vector clock incremented for transfer: {gossip_node.vector_clock}")
             except Exception as e:
-                # Graceful fallback: log but continue with DB operation
                 logger.warning(f"Event sourcing failed for transfer (continuing): {str(e)}")
             
             # Record transactions
@@ -714,7 +634,7 @@ class AccountOperations:
                 transaction_type="transfer_out",
                 amount=amount,
                 balance_before=from_balance_before,
-                balance_after=from_account.balance,
+                balance_after=from_balance_after,
                 status="success",
                 description=f"Transfer to {to_phone_number}",
                 server_id=server_config.SERVER_ID,
@@ -723,12 +643,12 @@ class AccountOperations:
             
             to_transaction = Transaction(
                 request_id=f"{request_id}_to",
-                account_id=to_account.account_id,
+                account_id=to_account_id,
                 phone_number=to_phone_number,
                 transaction_type="transfer_in",
                 amount=amount,
                 balance_before=to_balance_before,
-                balance_after=to_account.balance,
+                balance_after=to_balance_after,
                 status="success",
                 description=f"Transfer from {from_phone_number}",
                 server_id=server_config.SERVER_ID,
@@ -745,12 +665,11 @@ class AccountOperations:
                 "from_phone": from_phone_number,
                 "to_phone": to_phone_number,
                 "amount": float(amount),
-                "from_balance_after": float(from_account.balance),
-                "to_balance_after": float(to_account.balance),
+                "from_balance_after": float(from_balance_after),
+                "to_balance_after": float(to_balance_after),
                 "timestamp": from_transaction.created_at.isoformat()
             }
             
-            # Include event_ids if available
             if out_event_id:
                 response["out_event_id"] = out_event_id
             if in_event_id:
@@ -762,14 +681,3 @@ class AccountOperations:
             db.rollback()
             logger.error(f"Transfer failed: {str(e)}")
             return False, f"Transfer failed: {str(e)}", {}
-            
-        finally:
-            if lock_acquired_from:
-                AccountOperations.release_lock(db, from_account_id, request_id)
-            if lock_acquired_to:
-                # Get the to_account_id again since we may have lost reference
-                to_acct = db.query(Account).filter(
-                    Account.phone_number == to_phone_number
-                ).first()
-                if to_acct:
-                    AccountOperations.release_lock(db, to_acct.account_id, f"{request_id}_to")
