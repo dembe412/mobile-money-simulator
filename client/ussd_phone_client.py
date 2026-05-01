@@ -8,6 +8,8 @@ import os
 import sys
 import json
 import time
+import shutil
+import textwrap
 from datetime import datetime
 from typing import Optional, Dict, List, Tuple
 import requests
@@ -23,14 +25,15 @@ from src.ussd.protocol import USSDParser, USSDFormatter
 class USSDPhoneSession:
     """Manages USSD session state for a single phone user"""
     
-    def __init__(self, phone_number: str):
+    def __init__(self, phone_number: str, server_session_id: str = None):
         self.phone_number = phone_number
-        self.session_id = f"{phone_number}_{int(datetime.now().timestamp() * 1000)}"
+        self.session_id = server_session_id or f"{phone_number}_{int(datetime.now().timestamp() * 1000)}"
         self.account_id = None
-        self.current_step = "main_menu"  # Current menu state
-        self.input_buffer = {}  # Temporary storage for multi-step operations
+        self.current_step = "initializing"
+        self.input_buffer = {}
         self.created_at = datetime.now()
         self.last_activity = datetime.now()
+        self.active = True
     
     def update_activity(self):
         """Update last activity timestamp"""
@@ -44,6 +47,11 @@ class USSDPhoneSession:
     def clear_buffer(self):
         """Clear input buffer for next transaction"""
         self.input_buffer = {}
+
+    def update_step(self, step: str):
+        """Update the current USSD step."""
+        self.current_step = step
+        self.update_activity()
 
 
 class USSDPhoneClient:
@@ -107,6 +115,15 @@ Enter choice (1-4):
         # Session management
         self.sessions: Dict[str, USSDPhoneSession] = {}
         self.current_session: Optional[USSDPhoneSession] = None
+        self.last_server_response: Optional[Dict[str, str]] = None
+
+    def _box_width(self) -> int:
+        """Return a terminal-friendly box width."""
+        try:
+            terminal_width = shutil.get_terminal_size(fallback=(80, 20)).columns
+        except OSError:
+            terminal_width = 80
+        return max(42, min(72, terminal_width - 4))
     
     def _prompt(self, message: str, allow_empty: bool = False) -> str:
         """Get user input with prompt"""
@@ -126,28 +143,121 @@ Enter choice (1-4):
     
     def _display_response(self, title: str, message: str, data: dict = None):
         """Display response in USSD format"""
-        print(f"\n┌─────────────────────────────────┐")
-        print(f"│  {title:<27}  │")
-        print(f"├─────────────────────────────────┤")
-        
-        # Wrap message text
-        lines = message.split('\n')
-        for line in lines:
-            # Simple text wrapping
-            while len(line) > 30:
-                print(f"│ {line[:30]:<30}  │")
-                line = line[30:]
-            if line:
-                print(f"│ {line:<30}  │")
-        
+        width = self._box_width()
+        inner_width = width - 4
+
+        print("\n┌" + "─" * (width - 2) + "┐")
+        centered_title = title.strip().upper()[:inner_width]
+        print(f"│ {centered_title:^{inner_width}} │")
+        print("├" + "─" * (width - 2) + "┤")
+
+        wrapped_lines: List[str] = []
+        for paragraph in (message or "").splitlines() or [""]:
+            if paragraph.strip():
+                wrapped = textwrap.wrap(
+                    paragraph,
+                    width=inner_width,
+                    replace_whitespace=False,
+                    drop_whitespace=False,
+                )
+                wrapped_lines.extend(wrapped or [""])
+            else:
+                wrapped_lines.append("")
+
+        if not wrapped_lines:
+            wrapped_lines = [""]
+
+        for line in wrapped_lines:
+            print(f"│ {line:<{inner_width}} │")
+
         if data:
-            print(f"├─────────────────────────────────┤")
+            print("├" + "─" * (width - 2) + "┤")
             for key, value in data.items():
-                key_str = str(key)[:12]
-                val_str = str(value)[:16]
-                print(f"│ {key_str}: {val_str:<22} │")
-        
-        print(f"└─────────────────────────────────┘\n")
+                entry = f"{key}: {value}"
+                for line in textwrap.wrap(entry, width=inner_width) or [entry[:inner_width]]:
+                    print(f"│ {line:<{inner_width}} │")
+
+        print("└" + "─" * (width - 2) + "┘\n")
+
+    def _parse_server_ussd_response(self, response_text: str) -> Tuple[str, str, bool]:
+        """Convert a raw CON/END response into a display title and body."""
+        if not response_text:
+            return "USSD", "No response from server", False
+
+        cleaned = response_text.strip()
+        session_ended = False
+
+        if cleaned.startswith("CON "):
+            cleaned = cleaned[4:]
+        elif cleaned.startswith("END "):
+            cleaned = cleaned[4:]
+            session_ended = True
+
+        if not cleaned:
+            return "USSD", "", session_ended
+
+        lines = [line.rstrip() for line in cleaned.splitlines()]
+        if session_ended:
+            return "SESSION ENDED", cleaned, True
+
+        if len(lines) == 1:
+            return "USSD", lines[0], False
+
+        title = lines[0][:27] or "USSD"
+        message = "\n".join(lines[1:]).strip()
+        return title, message or lines[0], False
+
+    def _render_server_ussd_response(self, response_text: str):
+        """Render a server USSD response returned as CON/END text."""
+        title, message, session_ended = self._parse_server_ussd_response(response_text)
+        self.last_server_response = {
+            "title": title,
+            "message": message,
+            "session_ended": str(session_ended),
+        }
+        self._display_response(title, message)
+
+    def _start_server_session(self) -> bool:
+        """Open a server-backed USSD session and show the first menu."""
+        if not self.current_session:
+            self.current_session = USSDPhoneSession(self.phone_number)
+            self.sessions[self.phone_number] = self.current_session
+
+        print("📞 Dialing *165# to start USSD session...")
+        result = self.client.start_ussd_session(self.phone_number)
+        if not result.get("success"):
+            self._display_response("ERROR", result.get("message", "Failed to start USSD session"))
+            return False
+
+        session_id = result.get("session_id")
+        if not session_id:
+            self._display_response("ERROR", "Server did not return a session ID")
+            return False
+
+        self.current_session.session_id = session_id
+        self.current_session.update_step(result.get("session_state") or "MAIN_MENU")
+        self.current_session.active = bool(result.get("session_active", True))
+
+        ussd_response = result.get("ussd_response") or ""
+        self._render_server_ussd_response(ussd_response)
+        return True
+
+    def _send_server_input(self, user_input: str) -> Dict:
+        """Send a follow-up input to the active server USSD session."""
+        if not self.current_session or not self.current_session.session_id:
+            return {"success": False, "message": "No active session", "data": {}}
+
+        result = self.client.continue_ussd_session(
+            session_id=self.current_session.session_id,
+            user_input=user_input,
+            phone_number=self.phone_number,
+        )
+
+        if result.get("success"):
+            self.current_session.update_step(result.get("session_state") or self.current_session.current_step)
+            self.current_session.active = bool(result.get("session_active", True))
+
+        return result
     
     def _start_session(self) -> bool:
         """Initialize session and load account"""
@@ -495,36 +605,48 @@ Enter choice (1-4):
                 print("❌ Invalid choice. Please try again.")
     
     def _process_main_menu(self):
-        """Process main menu selection"""
-        while True:
-            if not self.current_session:
-                break
-            
-            self.current_session.update_activity()
-            
-            # Check session expiry
+        """Drive a real server-backed USSD session until it ends."""
+        if not self.current_session:
+            self._display_response("ERROR", "Session is not initialized")
+            return
+
+        if not self._start_server_session():
+            return
+
+        while self.current_session and self.current_session.active:
             if self.current_session.is_expired():
-                self._display_response("SESSION EXPIRED", "Your session has expired")
+                self._display_response("SESSION EXPIRED", "Your local session timed out")
                 break
-            
-            print(self.MAIN_MENU)
-            choice = self._prompt("Enter choice: ").strip()
-            
-            if choice == "1":
-                self._handle_deposit()
-            elif choice == "2":
-                self._handle_withdraw()
-            elif choice == "3":
-                self._handle_balance()
-            elif choice == "4":
-                self._handle_transactions()
-            elif choice == "5":
-                self._handle_settings()
-            elif choice == "0":
-                self._display_response("GOODBYE", "Thank you for using Mobile Money!")
+
+            print("\nEnter USSD reply exactly as shown in the menu.")
+            print("Type 0 to exit the USSD session.")
+            choice = self._prompt("Reply").strip()
+
+            if not choice:
+                print("❌ Input cannot be empty")
+                continue
+
+            self.current_session.update_activity()
+            result = self._send_server_input(choice)
+
+            if not result.get("success"):
+                self._display_response("ERROR", result.get("message", "USSD request failed"))
                 break
-            else:
-                print("❌ Invalid choice. Please enter 0-5")
+
+            ussd_response = result.get("ussd_response") or ""
+            self._render_server_ussd_response(ussd_response)
+
+            if result.get("session_id"):
+                self.current_session.session_id = result["session_id"]
+
+            if not result.get("session_active", True):
+                self.current_session.active = False
+                print("\n[Session ended on the server. Final message shown above.]\n")
+                break
+
+        if self.current_session:
+            self.current_session.clear_buffer()
+            self.current_session.active = False
     
     def run(self):
         """Main USSD client loop"""

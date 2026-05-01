@@ -839,21 +839,18 @@ async def _handle_session_input(db: Session, req: USSDRequest, session, user_inp
 
     if state in {"DEPOSIT_AMOUNT", "WITHDRAW_AMOUNT"}:
         try:
-            amount = float(user_input)
-        except ValueError:
+            amount = ussd_session_manager.parse_amount_input(user_input)
+        except Exception:
             return _session_response(session, "Invalid amount. Enter a numeric value.", continue_session=True, status="error")
-
-        if amount <= 0:
-            return _session_response(session, "Amount must be positive.", continue_session=True, status="error")
 
         pending_operation = "deposit" if state == "DEPOSIT_AMOUNT" else "withdraw"
         updated = ussd_session_manager.update_session(
             db,
             session.session_id,
             f"{pending_operation.upper()}_CONFIRM",
-            {"pending_operation": pending_operation, "pending_amount": amount},
+            {"pending_operation": pending_operation, "pending_amount": str(amount)},
         )
-        return _session_response(updated, USSDFormatter.confirm_prompt(pending_operation, amount))
+        return _session_response(updated, USSDFormatter.confirm_prompt(pending_operation, float(amount)))
 
     if state in {"DEPOSIT_CONFIRM", "WITHDRAW_CONFIRM"}:
         pending_operation = payload.get("pending_operation")
@@ -870,12 +867,18 @@ async def _handle_session_input(db: Session, req: USSDRequest, session, user_inp
             ussd_session_manager.update_session(db, session.session_id, "MAIN_MENU", {"pending_operation": None, "pending_amount": None})
             return _session_response(session, "Session expired. Please start again.", continue_session=False, status="error")
 
+        try:
+            pending_amount_decimal = ussd_session_manager.parse_amount_input(str(pending_amount))
+        except Exception:
+            ussd_session_manager.update_session(db, session.session_id, "MAIN_MENU", {"pending_operation": None, "pending_amount": None})
+            return _session_response(session, "Session expired. Please start again.", continue_session=False, status="error")
+
         operation_result = await _enqueue_ussd_operation(
             db=db,
             account=account,
             phone_number=session.phone_number,
             operation=pending_operation,
-            amount=float(pending_amount),
+            amount=float(pending_amount_decimal),
             client_ip=req.client_ip,
         )
 

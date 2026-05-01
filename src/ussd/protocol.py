@@ -7,9 +7,11 @@ menu-driven sessions backed by the ussd_sessions table.
 """
 import logging
 import time
+import re
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple
+from decimal import Decimal, InvalidOperation
 
 logger = logging.getLogger(__name__)
 
@@ -126,6 +128,26 @@ class USSDParser:
 
 class USSDFormatter:
     """Format USSD responses"""
+
+    @staticmethod
+    def _format_amount(amount: float) -> str:
+        """Format amounts with grouped thousands and no trailing zero noise."""
+        try:
+            quantized = Decimal(str(amount)).normalize()
+            formatted = format(quantized, "f")
+        except (InvalidOperation, ValueError):
+            formatted = str(amount)
+
+        if "." in formatted:
+            whole, fraction = formatted.split(".", 1)
+            whole = f"{int(whole):,}"
+            fraction = fraction.rstrip("0")
+            return f"{whole}.{fraction}" if fraction else whole
+
+        try:
+            return f"{int(formatted):,}"
+        except ValueError:
+            return formatted
     
     @staticmethod
     def success_response(
@@ -225,7 +247,7 @@ class USSDFormatter:
     def confirm_prompt(operation: str, amount: float) -> str:
         """Prompt user to confirm a pending transaction."""
         return USSDFormatter.session_response(
-            f"Confirm {operation} of {amount}?\n1. Yes\n2. No"
+            f"Confirm {operation} of {USSDFormatter._format_amount(amount)}?\n1. Yes\n2. No"
         )
 
     @staticmethod
@@ -254,6 +276,21 @@ class USSDSessionManager:
             "account_id": account_id,
             "data": data or {},
         }
+
+    @staticmethod
+    def parse_amount_input(raw_amount: str) -> Decimal:
+        """Parse a USSD amount while allowing commas and whitespace separators."""
+        cleaned = (raw_amount or "").strip().replace(",", "").replace("_", "")
+        if not cleaned:
+            raise InvalidOperation("Amount is required")
+
+        if not re.fullmatch(r"\d+(?:\.\d+)?", cleaned):
+            raise InvalidOperation(f"Invalid amount: {raw_amount}")
+
+        amount = Decimal(cleaned)
+        if amount <= 0:
+            raise InvalidOperation("Amount must be positive")
+        return amount
     
     def create_session(self, db, phone_number: str, account_id: Optional[int] = None, server_id: Optional[str] = None):
         """Create a new persistent USSD session."""
