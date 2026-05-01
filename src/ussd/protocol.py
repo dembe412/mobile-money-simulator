@@ -1,11 +1,15 @@
 """
 USSD Protocol Handler
-Parses USSD codes and formats responses
-Code format: *165*operation*phone*amount*additional_params
+Parses USSD codes, formats responses, and manages USSD session state.
+
+Supports both legacy one-shot requests like *165*2*0700000001*500# and
+menu-driven sessions backed by the ussd_sessions table.
 """
 import logging
-from typing import Dict, List, Optional, Tuple
+import time
 from dataclasses import dataclass
+from datetime import datetime, timedelta
+from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -190,39 +194,151 @@ class USSDFormatter:
         op_code = USSDParser.OPERATION_CODES_REVERSE.get(operation, "0")
         return f"*165*{op_code}*Request received. You will receive an SMS confirmation shortly.#"
 
+    @staticmethod
+    def session_response(message: str, continue_session: bool = True) -> str:
+        """Format a menu-style USSD response."""
+        prefix = "CON" if continue_session else "END"
+        return f"{prefix} {message}"
+
+    @staticmethod
+    def main_menu() -> str:
+        """Default USSD main menu."""
+        return USSDFormatter.session_response(
+            "Mobile Money\n"
+            "1. Deposit Money\n"
+            "2. Withdraw Money\n"
+            "3. Check Balance\n"
+            "4. Mini Statement\n"
+            "0. Exit"
+        )
+
+    @staticmethod
+    def amount_prompt(operation: str) -> str:
+        """Prompt for an amount in a menu flow."""
+        action = {
+            "deposit": "deposit",
+            "withdraw": "withdraw",
+        }.get(operation, operation)
+        return USSDFormatter.session_response(f"Enter amount to {action}")
+
+    @staticmethod
+    def confirm_prompt(operation: str, amount: float) -> str:
+        """Prompt user to confirm a pending transaction."""
+        return USSDFormatter.session_response(
+            f"Confirm {operation} of {amount}?\n1. Yes\n2. No"
+        )
+
+    @staticmethod
+    def session_end(message: str) -> str:
+        """Format a terminating USSD response."""
+        return USSDFormatter.session_response(message, continue_session=False)
+
 
 class USSDSessionManager:
-    """Manage USSD session state"""
+    """Manage persistent USSD session state"""
+
+    DEFAULT_TTL_SECONDS = 300
     
-    def __init__(self):
-        # In-memory session storage (use Redis in production)
-        self.sessions: Dict[str, Dict] = {}
-    
-    def create_session(self, phone_number: str) -> str:
-        """Create a new USSD session"""
-        session_id = f"ussd_{phone_number}_{int(__import__('time').time())}"
-        self.sessions[session_id] = {
-            "phone": phone_number,
-            "state": "menu",
-            "data": {}
+    def __init__(self, ttl_seconds: int = DEFAULT_TTL_SECONDS):
+        self.ttl_seconds = ttl_seconds
+
+    @staticmethod
+    def _now() -> datetime:
+        return datetime.utcnow()
+
+    @staticmethod
+    def _payload(state: str, phone_number: str, account_id: Optional[int] = None, data: Optional[Dict] = None) -> Dict:
+        return {
+            "state": state,
+            "phone_number": phone_number,
+            "account_id": account_id,
+            "data": data or {},
         }
-        return session_id
     
-    def get_session(self, session_id: str) -> Optional[Dict]:
-        """Get session data"""
-        return self.sessions.get(session_id)
+    def create_session(self, db, phone_number: str, account_id: Optional[int] = None, server_id: Optional[str] = None):
+        """Create a new persistent USSD session."""
+        from src.models import USSDSession
+
+        session = USSDSession(
+            session_id=f"ussd_{phone_number}_{int(time.time() * 1000)}",
+            phone_number=phone_number,
+            account_id=account_id,
+            session_state="MAIN_MENU",
+            session_data=self._payload("MAIN_MENU", phone_number, account_id),
+            created_at=self._now(),
+            updated_at=self._now(),
+            expires_at=self._now() + timedelta(seconds=self.ttl_seconds),
+            server_id=server_id,
+        )
+        db.add(session)
+        db.commit()
+        db.refresh(session)
+        return session
     
-    def update_session(self, session_id: str, state: str, data: Dict = None):
-        """Update session state and data"""
-        if session_id in self.sessions:
-            self.sessions[session_id]["state"] = state
-            if data:
-                self.sessions[session_id]["data"].update(data)
+    def get_session(self, db, session_id: str):
+        """Get session data by session id."""
+        from src.models import USSDSession
+
+        session = db.query(USSDSession).filter(USSDSession.session_id == session_id).first()
+        if not session:
+            return None
+        if session.expires_at and session.expires_at <= self._now():
+            self.end_session(db, session_id)
+            return None
+        return session
+
+    def get_or_create_session(self, db, phone_number: str, account_id: Optional[int] = None, server_id: Optional[str] = None):
+        """Return the active session for a phone number or create one."""
+        from src.models import USSDSession
+
+        session = db.query(USSDSession).filter(
+            USSDSession.phone_number == phone_number,
+            USSDSession.expires_at > self._now(),
+        ).order_by(USSDSession.updated_at.desc()).first()
+
+        if session:
+            return session
+        return self.create_session(db, phone_number, account_id=account_id, server_id=server_id)
     
-    def end_session(self, session_id: str):
-        """End session"""
-        if session_id in self.sessions:
-            del self.sessions[session_id]
+    def update_session(self, db, session_id: str, state: str, data: Dict = None):
+        """Update session state, payload, and expiry."""
+        session = self.get_session(db, session_id)
+        if not session:
+            return None
+
+        current_data = (session.session_data or {}).get("data", {})
+        session.session_state = state
+        session.session_data = self._payload(
+            state,
+            session.phone_number,
+            session.account_id,
+            {**current_data, **(data or {})},
+        )
+        session.updated_at = self._now()
+        session.expires_at = self._now() + timedelta(seconds=self.ttl_seconds)
+        db.add(session)
+        db.commit()
+        db.refresh(session)
+        return session
+    
+    def end_session(self, db, session_id: str):
+        """End session and remove it from persistence."""
+        from src.models import USSDSession
+
+        session = db.query(USSDSession).filter(USSDSession.session_id == session_id).first()
+        if not session:
+            return False
+        db.delete(session)
+        db.commit()
+        return True
+
+    def cleanup_expired_sessions(self, db) -> int:
+        """Remove expired sessions from storage."""
+        from src.models import USSDSession
+
+        deleted = db.query(USSDSession).filter(USSDSession.expires_at <= self._now()).delete()
+        db.commit()
+        return deleted
 
 
 # Example usage

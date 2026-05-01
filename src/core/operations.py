@@ -258,6 +258,8 @@ class AccountOperations:
                         balance_after=balance_after,
                         server_id=server_config.SERVER_ID,
                         vector_clock=gossip_node.vector_clock.copy(),
+                        phone_number=account.phone_number,
+                        account_holder_name=account.account_holder_name,
                     )
                     
                     # Append to event store (non-blocking)
@@ -369,6 +371,8 @@ class AccountOperations:
                         balance_after=balance_after,
                         server_id=server_config.SERVER_ID,
                         vector_clock=gossip_node.vector_clock.copy(),
+                        phone_number=account.phone_number,
+                        account_holder_name=account.account_holder_name,
                     )
                     
                     # Append to event store (non-blocking)

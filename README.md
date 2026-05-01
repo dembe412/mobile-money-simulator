@@ -138,6 +138,7 @@ Result: Server 2's operation wins, Server 1's is ignored
 - **Quorum-Based Replication**: Majority consensus for eventual consistency
 - **Gossip Protocol**: P2P heartbeats and event propagation
 - **USSD Protocol Support**: Feature phone accessibility
+- **Persistent USSD Sessions**: Menu-driven server-side sessions with session IDs
 - **Operations**: Withdraw, Deposit, Check Balance, Mini Statement
 - **Automatic Failover**: Clients retry on alternate servers
 - **Conflict Resolution**: Last-Write-Wins strategy for diverged states

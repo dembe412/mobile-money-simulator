@@ -40,6 +40,9 @@ class Event:
     amount: Optional[Decimal] = None
     balance_before: Optional[Decimal] = None
     balance_after: Optional[Decimal] = None
+    # Optional account metadata to carry with events
+    phone_number: Optional[str] = None
+    account_holder_name: Optional[str] = None
     
     # Causality tracking
     vector_clock: Dict[str, int] = None
@@ -86,6 +89,8 @@ class Event:
             'is_replicated': self.is_replicated,
             'replicated_to': {k: v.isoformat() if isinstance(v, datetime) else v 
                              for k, v in (self.replicated_to or {}).items()},
+            'phone_number': self.phone_number,
+            'account_holder_name': self.account_holder_name,
         }
     
     @staticmethod
@@ -110,6 +115,8 @@ class Event:
             is_applied=data.get('is_applied', False),
             is_replicated=data.get('is_replicated', False),
             replicated_to=data.get('replicated_to', {}),
+            phone_number=data.get('phone_number'),
+            account_holder_name=data.get('account_holder_name'),
         )
     
     def __repr__(self):
@@ -241,6 +248,8 @@ def create_withdraw_event(
     server_id: str,
     vector_clock: Dict[str, int],
     client_reference: Optional[str] = None,
+    phone_number: Optional[str] = None,
+    account_holder_name: Optional[str] = None,
 ) -> Event:
     """Factory function to create withdraw event"""
     return Event(
@@ -255,6 +264,8 @@ def create_withdraw_event(
         server_id=server_id,
         timestamp=datetime.utcnow(),
         client_reference=client_reference,
+        phone_number=phone_number,
+        account_holder_name=account_holder_name,
     )
 
 
@@ -267,6 +278,8 @@ def create_deposit_event(
     server_id: str,
     vector_clock: Dict[str, int],
     client_reference: Optional[str] = None,
+    phone_number: Optional[str] = None,
+    account_holder_name: Optional[str] = None,
 ) -> Event:
     """Factory function to create deposit event"""
     return Event(
@@ -281,6 +294,8 @@ def create_deposit_event(
         server_id=server_id,
         timestamp=datetime.utcnow(),
         client_reference=client_reference,
+        phone_number=phone_number,
+        account_holder_name=account_holder_name,
     )
 
 
@@ -293,6 +308,8 @@ def create_transfer_out_event(
     server_id: str,
     vector_clock: Dict[str, int],
     client_reference: Optional[str] = None,
+    phone_number: Optional[str] = None,
+    account_holder_name: Optional[str] = None,
 ) -> Event:
     """Factory function to create transfer out event"""
     return Event(
@@ -307,6 +324,8 @@ def create_transfer_out_event(
         server_id=server_id,
         timestamp=datetime.utcnow(),
         client_reference=client_reference,
+        phone_number=phone_number,
+        account_holder_name=account_holder_name,
     )
 
 
@@ -319,6 +338,8 @@ def create_transfer_in_event(
     server_id: str,
     vector_clock: Dict[str, int],
     client_reference: Optional[str] = None,
+    phone_number: Optional[str] = None,
+    account_holder_name: Optional[str] = None,
 ) -> Event:
     """Factory function to create transfer in event"""
     return Event(
@@ -333,4 +354,6 @@ def create_transfer_in_event(
         server_id=server_id,
         timestamp=datetime.utcnow(),
         client_reference=client_reference,
+        phone_number=phone_number,
+        account_holder_name=account_holder_name,
     )

@@ -129,6 +129,16 @@ curl -X POST http://127.0.0.1:8001/api/v1/ussd \
 curl -X POST http://127.0.0.1:8001/api/v1/ussd \
   -H "Content-Type: application/json" \
   -d '{"ussd_input":"*165*2*0700000001*500#"}'
+
+# Start a persistent USSD session (returns session_id)
+curl -X POST http://127.0.0.1:8001/api/v1/ussd \
+  -H "Content-Type: application/json" \
+  -d '{"ussd_input":"*165#","phone_number":"0700000001"}'
+
+# Continue the same session (replace SESSION_ID with the value returned above)
+curl -X POST http://127.0.0.1:8001/api/v1/ussd \
+  -H "Content-Type: application/json" \
+  -d '{"ussd_input":"1","phone_number":"0700000001","session_id":"SESSION_ID"}'
 ```
 
 ---

@@ -35,6 +35,7 @@ class ReplicationManager:
         batch_size: int = 10,
         batch_interval_sec: int = 2,
         replicate_timeout_sec: int = 5,
+        server_discovery=None,
     ):
         """
         Initialize replication manager
@@ -53,6 +54,7 @@ class ReplicationManager:
         self.batch_size = batch_size
         self.batch_interval_sec = batch_interval_sec
         self.replicate_timeout_sec = replicate_timeout_sec
+        self.server_discovery = server_discovery
         
         # Replication state
         self.pending_replication: List[Event] = []  # Events waiting to be replicated
@@ -275,11 +277,55 @@ class ReplicationManager:
                 # 1. Fetch or create account stub
                 account = db.query(Account).filter(Account.account_id == event.account_id).first()
                 if not account:
-                    # Create stub account
+                    # Prefer metadata from incoming event
+                    phone = getattr(event, 'phone_number', None)
+                    name = getattr(event, 'account_holder_name', None)
+
+                    # If metadata missing, try to query originating server or peers for authoritative account data
+                    if not phone:
+                        try:
+                            peer = self.gossip_node.get_peer(event.server_id) if event.server_id else None
+                            if peer:
+                                import httpx
+                                url = f"http://{peer.host}:{peer.port}/api/v1/account/{event.account_id}"
+                                async with httpx.AsyncClient(timeout=self.replicate_timeout_sec) as client:
+                                    resp = await client.get(url)
+                                    if resp.status_code == 200:
+                                        data = resp.json()
+                                        phone = data.get('phone_number') or data.get('phone')
+                                        name = data.get('name') or data.get('account_holder_name')
+                        except Exception:
+                            phone = None
+
+                    # If still missing, try other healthy peers
+                    if not phone:
+                        try:
+                            import httpx
+                            for peer in self.gossip_node.get_healthy_peers():
+                                url = f"http://{peer.host}:{peer.port}/api/v1/account/{event.account_id}"
+                                try:
+                                    async with httpx.AsyncClient(timeout=self.replicate_timeout_sec) as client:
+                                        resp = await client.get(url)
+                                        if resp.status_code == 200:
+                                            data = resp.json()
+                                            phone = data.get('phone_number') or data.get('phone')
+                                            name = data.get('name') or data.get('account_holder_name')
+                                            break
+                                except Exception:
+                                    continue
+                        except Exception:
+                            pass
+
+                    if not phone:
+                        phone = f"unknown_{event.account_id}_{event.event_id[:5]}"
+                    if not name:
+                        name = "Unknown (Replicated)"
+
+                    # Create stub account with best-effort metadata
                     account = Account(
                         account_id=event.account_id,
-                        phone_number=f"unknown_{event.account_id}_{event.event_id[:5]}",
-                        account_holder_name="Unknown (Replicated)",
+                        phone_number=phone,
+                        account_holder_name=name,
                         balance=event.balance_after or Decimal(0),
                         created_by_server=event.server_id
                     )

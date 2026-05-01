@@ -7,6 +7,8 @@ from typing import List, Optional, Dict
 from bisect import bisect_right
 import logging
 
+from src.distributed.utils import normalize_phone
+
 logger = logging.getLogger(__name__)
 
 
@@ -73,6 +75,12 @@ class ConsistentHash:
         for i in range(self.virtual_nodes):
             virtual_key = f"{node_id}:{i}"
             hash_pos = self._hash(virtual_key)
+            # collision resolution: re-salt virtual key until free
+            salt = 0
+            while hash_pos in self.hash_ring:
+                salt += 1
+                virtual_key_s = f"{virtual_key}:c{salt}"
+                hash_pos = self._hash(virtual_key_s)
             self.hash_ring[hash_pos] = node
         
         # Keep sorted list of hash positions
@@ -114,7 +122,9 @@ class ConsistentHash:
         if not self.hash_ring:
             return None
         
-        hash_pos = self._hash(key)
+        # normalize phone keys for stability
+        k = normalize_phone(key) if isinstance(key, str) else key
+        hash_pos = self._hash(k)
         
         # Find the first node with hash >= our hash
         idx = bisect_right(self.sorted_keys, hash_pos)
@@ -140,7 +150,8 @@ class ConsistentHash:
         if not self.hash_ring:
             return []
         
-        hash_pos = self._hash(key)
+        k = normalize_phone(key) if isinstance(key, str) else key
+        hash_pos = self._hash(k)
         nodes = []
         seen = set()
         
@@ -314,6 +325,55 @@ class ServerDiscovery:
                 "port": node.port
             })
         return sorted(servers, key=lambda x: x["port"])
+
+
+class RendezvousHash:
+    """
+    Simple Rendezvous (Highest Random Weight) hashing implementation.
+    Avoids virtual nodes and gives good distribution for small clusters.
+    """
+
+    def __init__(self, nodes: Dict[str, Dict] = None):
+        # nodes: {node_id: {'host': str, 'port': int}}
+        self.nodes = {}
+        if nodes:
+            for nid, cfg in nodes.items():
+                self.nodes[nid] = Node(nid, cfg['host'], cfg['port'])
+
+    def add_node(self, node_id: str, host: str, port: int):
+        self.nodes[node_id] = Node(node_id, host, port)
+
+    def remove_node(self, node_id: str):
+        if node_id in self.nodes:
+            del self.nodes[node_id]
+
+    def _score(self, key: str, node_id: str) -> int:
+        data = f"{key}:{node_id}"
+        return int(hashlib.sha1(data.encode('utf-8')).hexdigest(), 16)
+
+    def get_node(self, key: str) -> Optional[Node]:
+        if not self.nodes:
+            return None
+        k = normalize_phone(key) if isinstance(key, str) else key
+        best = None
+        best_score = -1
+        for nid, node in self.nodes.items():
+            score = self._score(k, nid)
+            if score > best_score:
+                best_score = score
+                best = node
+        return best
+
+    def get_nodes(self, key: str, count: int = 3) -> List[Node]:
+        if not self.nodes:
+            return []
+        k = normalize_phone(key) if isinstance(key, str) else key
+        scored = []
+        for nid, node in self.nodes.items():
+            scored.append((self._score(k, nid), node))
+        scored.sort(reverse=True, key=lambda x: x[0])
+        return [n for _, n in scored[:count]]
+
 
 
 # Example usage and testing

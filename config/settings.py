@@ -78,6 +78,7 @@ class ReplicationConfig:
     DISCOVERY_INTERVAL:   int  = int(os.getenv("DISCOVERY_INTERVAL",   "5"))   # peer refresh
     PEER_TTL_SECONDS:     int  = int(os.getenv("PEER_TTL_SECONDS",     "15"))  # stale threshold
     HASH_VIRTUAL_NODES:   int  = int(os.getenv("HASH_VIRTUAL_NODES",   "150"))
+    HASH_STRATEGY:        str  = os.getenv("HASH_STRATEGY", "consistent")
 
 
 # ── Security ──────────────────────────────────────────────────────────────────

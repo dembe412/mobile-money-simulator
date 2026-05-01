@@ -502,7 +502,7 @@ class MobileMoneyClient:
                 "data": {}
             }
     
-    def ussd_request(self, ussd_input: str, phone_number: str = None) -> Dict:
+    def ussd_request(self, ussd_input: str, phone_number: str = None, session_id: str = None) -> Dict:
         """
         Send USSD request
         Format: *165*operation*phone*amount
@@ -520,6 +520,7 @@ class MobileMoneyClient:
             data = {
                 "ussd_input": ussd_input,
                 "phone_number": phone_number,
+                "session_id": session_id,
                 "client_ip": "0.0.0.0"
             }
             
@@ -537,7 +538,11 @@ class MobileMoneyClient:
                 return {
                     "success": True,
                     "message": "USSD request processed",
-                    "data": response.get("data", {})
+                    "data": response.get("data", {}),
+                    "session_id": response.get("session_id"),
+                    "session_state": response.get("session_state"),
+                    "session_active": response.get("session_active"),
+                    "ussd_response": response.get("ussd_response"),
                 }
             else:
                 return {
@@ -552,6 +557,14 @@ class MobileMoneyClient:
                 "message": str(e),
                 "data": {}
             }
+
+    def start_ussd_session(self, phone_number: str) -> Dict:
+        """Start a persistent USSD session for a phone number."""
+        return self.ussd_request("*165#", phone_number=phone_number)
+
+    def continue_ussd_session(self, session_id: str, user_input: str, phone_number: str = None) -> Dict:
+        """Send a follow-up input to an existing USSD session."""
+        return self.ussd_request(user_input, phone_number=phone_number, session_id=session_id)
     
     def get_transactions(self, account_id, limit: int = 10) -> Dict:
         """
