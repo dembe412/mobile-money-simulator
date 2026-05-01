@@ -475,7 +475,7 @@ curl -X POST http://localhost:8001/api/v1/account/create \
 }
 ```
 
-#### Withdraw (With Idempotency)
+#### Withdraw (Asynchronous Messaging + Idempotency)
 ```bash
 curl -X POST http://localhost:8001/api/v1/operation/withdraw \
   -H "Content-Type: application/json" \
@@ -486,14 +486,17 @@ curl -X POST http://localhost:8001/api/v1/operation/withdraw \
     "client_reference": "mobile_app_v1_ref_123"
   }'
 
-# Response (200 OK):
+# Response (200 OK - accepted for async processing):
 {
-  "success": true,
-  "message": "Withdrawal successful",
-  "transaction_id": "txn_abc123",
-  "new_balance": 9000.0,
-  "timestamp": "2026-04-19T10:05:00"
+  "status": "accepted",
+  "message": "Withdrawal request queued for asynchronous processing",
+  "request_id": "ref_0751234567_mobile_app_v1_ref_123",
+  "processing_status": "received",
+  "check_status_url": "/api/v1/operation/request/ref_0751234567_mobile_app_v1_ref_123"
 }
+
+# Poll request status until processing_status is completed or failed
+curl http://localhost:8001/api/v1/operation/request/ref_0751234567_mobile_app_v1_ref_123
 
 # If same request sent again (same client_reference):
 # Server returns SAME response without charging twice!

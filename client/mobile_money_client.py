@@ -331,10 +331,15 @@ class MobileMoneyClient:
             )
             
             if success:
+                message = response.get("message", "Withdrawal request accepted")
                 return {
                     "success": True,
-                    "message": "Withdrawal successful",
-                    "data": response.get("data", {})
+                    "message": message,
+                    "data": response.get("data", {}),
+                    "request_id": response.get("request_id"),
+                    "processing_status": response.get("processing_status"),
+                    "check_status_url": response.get("check_status_url"),
+                    "raw_response": response,
                 }
             else:
                 return {
@@ -391,10 +396,15 @@ class MobileMoneyClient:
             )
             
             if success:
+                message = response.get("message", "Deposit request accepted")
                 return {
                     "success": True,
-                    "message": "Deposit successful",
-                    "data": response.get("data", {})
+                    "message": message,
+                    "data": response.get("data", {}),
+                    "request_id": response.get("request_id"),
+                    "processing_status": response.get("processing_status"),
+                    "check_status_url": response.get("check_status_url"),
+                    "raw_response": response,
                 }
             else:
                 return {
@@ -408,6 +418,34 @@ class MobileMoneyClient:
                 "success": False,
                 "message": str(e),
                 "data": {}
+            }
+
+    def get_operation_request_status(self, request_id: str) -> Dict:
+        """Fetch async operation status by request ID."""
+        try:
+            success, response = self._make_request(
+                "GET",
+                f"/api/v1/operation/request/{request_id}",
+            )
+
+            if success:
+                return {
+                    "success": True,
+                    "message": "Request status fetched",
+                    "data": response,
+                }
+
+            return {
+                "success": False,
+                "message": response.get("message", "Failed to fetch request status"),
+                "data": response,
+            }
+        except Exception as e:
+            logger.error(f"Get request status failed: {str(e)}")
+            return {
+                "success": False,
+                "message": str(e),
+                "data": {},
             }
     
     def check_balance(
@@ -621,43 +659,49 @@ if __name__ == "__main__":
     
     # 1. Create account
     print("1. Creating account...")
-    success, response = client.create_account(
+    result = client.create_account(
         "075346363",
         "John Doe",
         10000.0
     )
+    success = result.get("success", False)
     print(f"   Status: {success}")
-    print(f"   Response: {json.dumps(response, indent=2)}\n")
-    
+    print(f"   Response: {json.dumps(result, indent=2)}\n")
+
     if success:
-        account_id = response.get("data", {}).get("account_id", 1)
-        
+        account_id = result.get("data", {}).get("account_id", 1)
+
         # 2. Check balance
         print("2. Checking balance...")
-        success, response = client.check_balance(account_id)
+        result = client.check_balance(account_id)
+        success = result.get("success", False)
         print(f"   Status: {success}")
-        print(f"   Response: {json.dumps(response, indent=2)}\n")
-        
+        print(f"   Response: {json.dumps(result, indent=2)}\n")
+
         # 3. Withdraw
         print("3. Withdrawing 1000 KES...")
-        success, response = client.withdraw(account_id, "075346363", 1000.0)
+        result = client.withdraw(account_id, "075346363", 1000.0)
+        success = result.get("success", False)
         print(f"   Status: {success}")
-        print(f"   Response: {json.dumps(response, indent=2)}\n")
-        
+        print(f"   Response: {json.dumps(result, indent=2)}\n")
+
         # 4. Deposit
         print("4. Depositing 500 KES...")
-        success, response = client.deposit(account_id, "075346363", 500.0)
+        result = client.deposit(account_id, "075346363", 500.0)
+        success = result.get("success", False)
         print(f"   Status: {success}")
-        print(f"   Response: {json.dumps(response, indent=2)}\n")
-        
+        print(f"   Response: {json.dumps(result, indent=2)}\n")
+
         # 5. USSD withdraw
         print("5. USSD Withdraw (*165*2*075346363*1000)...")
-        success, response = client.ussd_request("*165*2*075346363*1000#")
+        result = client.ussd_request("*165*2*075346363*1000#")
+        success = result.get("success", False)
         print(f"   Status: {success}")
-        print(f"   Response: {json.dumps(response, indent=2)}\n")
-        
+        print(f"   Response: {json.dumps(result, indent=2)}\n")
+
         # 6. USSD balance check
         print("6. USSD Balance Check (*165*3*075346363)...")
-        success, response = client.ussd_request("*165*3*075346363#")
+        result = client.ussd_request("*165*3*075346363#")
+        success = result.get("success", False)
         print(f"   Status: {success}")
-        print(f"   Response: {json.dumps(response, indent=2)}\n")
+        print(f"   Response: {json.dumps(result, indent=2)}\n")

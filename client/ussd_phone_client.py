@@ -7,6 +7,7 @@ Works with text-based menus like real feature phones
 import os
 import sys
 import json
+import time
 from datetime import datetime
 from typing import Optional, Dict, List, Tuple
 import requests
@@ -231,6 +232,49 @@ Enter choice (1-4):
         except Exception as e:
             self._display_response("ERROR", f"Session initialization failed: {str(e)}")
             return False
+
+    def _wait_for_async_operation(
+        self,
+        request_id: str,
+        timeout_seconds: int = 20,
+        poll_interval_seconds: float = 0.8,
+    ) -> Dict:
+        """Poll async operation status until completion, failure, or timeout."""
+        start_time = time.time()
+
+        while (time.time() - start_time) < timeout_seconds:
+            status_result = self.client.get_operation_request_status(request_id)
+            if not status_result.get("success"):
+                return {
+                    "success": False,
+                    "message": status_result.get("message", "Failed to read request status"),
+                    "data": {},
+                }
+
+            payload = status_result.get("data", {})
+            processing_status = payload.get("processing_status")
+
+            if processing_status == "completed":
+                return {
+                    "success": True,
+                    "message": "Operation completed",
+                    "data": payload.get("data", {}),
+                }
+
+            if processing_status == "failed":
+                return {
+                    "success": False,
+                    "message": payload.get("error") or "Operation failed",
+                    "data": payload.get("data", {}),
+                }
+
+            time.sleep(poll_interval_seconds)
+
+        return {
+            "success": False,
+            "message": "Operation still processing. Please check again shortly.",
+            "data": {},
+        }
     
     def _handle_deposit(self):
         """Handle deposit operation"""
@@ -261,14 +305,25 @@ Enter choice (1-4):
             phone_number=self.phone_number,
             amount=amount
         )
+
+        if not result['success']:
+            self._display_response("ERROR", f"Deposit failed: {result['message']}")
+            return
+
+        request_id = result.get("request_id")
+        if request_id:
+            print("⏳ Finalizing deposit...")
+            result = self._wait_for_async_operation(request_id)
         
         if result['success']:
+            amount_value = result.get('data', {}).get('amount', amount)
+            balance_value = result.get('data', {}).get('balance_after', 'N/A')
             self._display_response(
                 "SUCCESS",
                 "Deposit completed!",
                 {
-                    "Amount": f"{result['data']['amount']}",
-                    "Balance": f"{result['data']['balance_after']}",
+                    "Amount": f"{amount_value}",
+                    "Balance": f"{balance_value}",
                     "Time": datetime.now().strftime("%H:%M:%S")
                 }
             )
@@ -304,14 +359,25 @@ Enter choice (1-4):
             phone_number=self.phone_number,
             amount=amount
         )
+
+        if not result['success']:
+            self._display_response("ERROR", f"Withdrawal failed: {result['message']}")
+            return
+
+        request_id = result.get("request_id")
+        if request_id:
+            print("⏳ Finalizing withdrawal...")
+            result = self._wait_for_async_operation(request_id)
         
         if result['success']:
+            amount_value = result.get('data', {}).get('amount', amount)
+            balance_value = result.get('data', {}).get('balance_after', 'N/A')
             self._display_response(
                 "SUCCESS",
                 "Withdrawal completed!",
                 {
-                    "Amount": f"{result['data']['amount']}",
-                    "Balance": f"{result['data']['balance_after']}",
+                    "Amount": f"{amount_value}",
+                    "Balance": f"{balance_value}",
                     "Time": datetime.now().strftime("%H:%M:%S")
                 }
             )

@@ -83,15 +83,18 @@ curl -X POST http://127.0.0.1:8003/api/v1/account/create \
 ## Operations
 
 ```bash
-# Withdraw (with idempotency key — safe to retry)
+# Withdraw (asynchronous: returns request_id and accepted status)
 curl -X POST http://127.0.0.1:8001/api/v1/operation/withdraw \
   -H "Content-Type: application/json" \
   -d '{"phone_number":"0700000001","amount":1000,"client_reference":"my-unique-ref-001"}'
 
-# Deposit
+# Deposit (asynchronous: returns request_id and accepted status)
 curl -X POST http://127.0.0.1:8002/api/v1/operation/deposit \
   -H "Content-Type: application/json" \
   -d '{"phone_number":"0700000002","amount":500,"client_reference":"dep-ref-001"}'
+
+# Check async request completion status (replace REQUEST_ID)
+curl http://127.0.0.1:8001/api/v1/operation/request/REQUEST_ID
 
 # Check balance
 curl -X POST http://127.0.0.1:8001/api/v1/operation/balance \

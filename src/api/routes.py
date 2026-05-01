@@ -8,7 +8,6 @@ from pydantic import BaseModel
 from typing import Optional, Dict, Any
 import logging
 from decimal import Decimal
-import asyncio
 
 from config.database import SessionLocal, get_db, init_db
 from config.settings import server_config, app_config, security_config, database_config, replication_config
@@ -24,6 +23,7 @@ from src.core.events import EventStore
 from src.core.wal import WriteAheadLog
 from src.core.quorum import QuorumConfig, QuorumWriter
 from src.core.conflict_resolver import ConflictResolver
+from src.core.async_messaging import AsyncOperationProcessor, OperationMessage
 from src.models import Account
 
 logger = logging.getLogger(__name__)
@@ -55,6 +55,7 @@ event_store:          Optional[EventStore]         = None
 write_ahead_log:      Optional[WriteAheadLog]      = None
 quorum_writer:        Optional[QuorumWriter]       = None
 conflict_resolver:    Optional[ConflictResolver]   = None
+async_processor:      Optional[AsyncOperationProcessor] = None
 
 
 # Request models
@@ -111,6 +112,7 @@ async def startup_event():
     """Initialise database, start background workers, register with cluster."""
     global gossip_node, heartbeat_worker, replication_manager, discovery_worker
     global event_store, write_ahead_log, quorum_writer, conflict_resolver, service_registry
+    global async_processor
 
     logger.info(f"Starting Mobile Money Server: {server_config.SERVER_ID}")
     try:
@@ -194,6 +196,14 @@ async def startup_event():
         await replication_manager.start()
         logger.info("✓ Replication manager started")
 
+        # 8. Async messaging for deposit/withdraw operations
+        async_processor = AsyncOperationProcessor(
+            db_session_factory=SessionLocal,
+            worker_count=2,
+        )
+        await async_processor.start()
+        logger.info("✓ Async operation processor started")
+
         logger.info("=" * 60)
         logger.info(f"  {server_config.SERVER_ID} is ONLINE")
         logger.info(f"  DB  : {database_config.DB_PATH}")
@@ -216,6 +226,8 @@ async def shutdown_event():
             await heartbeat_worker.stop()
         if replication_manager:
             await replication_manager.stop()
+        if async_processor:
+            await async_processor.stop()
         logger.info("✓ Shutdown complete")
     except Exception as e:
         logger.error(f"Shutdown error: {e}", exc_info=True)
@@ -246,7 +258,8 @@ async def server_status():
         "port": server_config.SERVER_PORT,
         "environment": app_config.APP_ENV,
         "version": app_config.APP_VERSION,
-        "hash_ring_status": hash_ring.get_status()
+        "hash_ring_status": hash_ring.get_status(),
+        "async_queue_depth": async_processor.queue_size() if async_processor else 0,
     }
 
 
@@ -327,9 +340,12 @@ async def get_account(account_id: int, db: Session = Depends(get_db)):
 async def withdraw(req: WithdrawRequest, db: Session = Depends(get_db)):
     """
     Withdraw funds from account
-    Synchronous operation - returns immediate response
+    Asynchronous operation - queued and processed by background workers
     """
     try:
+        if async_processor is None:
+            raise HTTPException(status_code=503, detail="Async processor is not initialized")
+
         # Resolve account by phone_number or account_id
         acc_resolved, acc_msg, account = AccountOperations.resolve_account(
             db, req.account_id, req.phone_number
@@ -363,39 +379,36 @@ async def withdraw(req: WithdrawRequest, db: Session = Depends(get_db)):
                     "data": req_entry.response_data,
                     "request_id": request_id
                 }
+            if req_entry and req_entry.status in ["received", "processing"]:
+                return {
+                    "status": "accepted",
+                    "message": "Request already queued",
+                    "request_id": request_id,
+                    "processing_status": req_entry.status,
+                }
             else:
                 raise HTTPException(status_code=409, detail="Request already in progress or failed")
-        
-        # Execute withdrawal
-        success, message, response_data = AccountOperations.withdraw(
-            db, account_id, req.phone_number,
-            Decimal(str(req.amount)), request_id
+
+        await async_processor.enqueue(
+            OperationMessage(
+                request_id=request_id,
+                operation_type="withdraw",
+                account_id=account_id,
+                phone_number=req.phone_number,
+                amount=Decimal(str(req.amount)),
+            )
         )
+
+        return {
+            "status": "accepted",
+            "message": "Withdrawal request queued for asynchronous processing",
+            "request_id": request_id,
+            "processing_status": "received",
+            "check_status_url": f"/api/v1/operation/request/{request_id}",
+        }
         
-        # Update request status
-        RequestIdempotency.update_request_status(
-            db, request_id,
-            "completed" if success else "failed",
-            200 if success else 400,
-            response_data,
-            None if success else message
-        )
-        
-        if success:
-            return {
-                "status": "success",
-                "message": message,
-                "data": response_data,
-                "request_id": request_id
-            }
-        else:
-            return {
-                "status": "error",
-                "message": message,
-                "data": response_data,
-                "request_id": request_id
-            }
-        
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         logger.error(f"Withdrawal failed: {str(e)}")
@@ -406,9 +419,12 @@ async def withdraw(req: WithdrawRequest, db: Session = Depends(get_db)):
 async def deposit(req: DepositRequest, db: Session = Depends(get_db)):
     """
     Deposit funds to account
-    Mostly synchronous but notification is async
+    Asynchronous operation - queued and processed by background workers
     """
     try:
+        if async_processor is None:
+            raise HTTPException(status_code=503, detail="Async processor is not initialized")
+
         # Resolve account by phone_number or account_id
         acc_resolved, acc_msg, account = AccountOperations.resolve_account(
             db, req.account_id, req.phone_number
@@ -442,46 +458,61 @@ async def deposit(req: DepositRequest, db: Session = Depends(get_db)):
                     "data": req_entry.response_data,
                     "request_id": request_id
                 }
+            if req_entry and req_entry.status in ["received", "processing"]:
+                return {
+                    "status": "accepted",
+                    "message": "Request already queued",
+                    "request_id": request_id,
+                    "processing_status": req_entry.status,
+                }
             else:
                 raise HTTPException(status_code=409, detail="Request already in progress or failed")
-        
-        # Execute deposit
-        success, message, response_data = AccountOperations.deposit(
-            db, account_id, req.phone_number,
-            Decimal(str(req.amount)), request_id
+
+        await async_processor.enqueue(
+            OperationMessage(
+                request_id=request_id,
+                operation_type="deposit",
+                account_id=account_id,
+                phone_number=req.phone_number,
+                amount=Decimal(str(req.amount)),
+            )
         )
+
+        return {
+            "status": "accepted",
+            "message": "Deposit request queued for asynchronous processing",
+            "request_id": request_id,
+            "processing_status": "received",
+            "check_status_url": f"/api/v1/operation/request/{request_id}",
+            "notification": "SMS confirmation will be sent",
+        }
         
-        # Update request status
-        RequestIdempotency.update_request_status(
-            db, request_id,
-            "completed" if success else "failed",
-            200 if success else 400,
-            response_data,
-            None if success else message
-        )
-        
-        # TODO: Queue notification for async sending
-        
-        if success:
-            return {
-                "status": "success",
-                "message": message,
-                "data": response_data,
-                "request_id": request_id,
-                "notification": "SMS confirmation will be sent"
-            }
-        else:
-            return {
-                "status": "error",
-                "message": message,
-                "data": response_data,
-                "request_id": request_id
-            }
-        
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         logger.error(f"Deposit failed: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/api/v1/operation/request/{request_id}")
+async def get_operation_request_status(request_id: str, db: Session = Depends(get_db)):
+    """Get request processing status for async operations."""
+    req_entry = RequestIdempotency.get_request(db, request_id)
+    if not req_entry:
+        raise HTTPException(status_code=404, detail="Request not found")
+
+    return {
+        "status": "success",
+        "request_id": request_id,
+        "operation_type": req_entry.operation_type,
+        "processing_status": req_entry.status,
+        "response_code": req_entry.response_code,
+        "data": req_entry.response_data,
+        "error": req_entry.error_message,
+        "created_at": req_entry.created_at.isoformat() if req_entry.created_at else None,
+        "updated_at": req_entry.updated_at.isoformat() if req_entry.updated_at else None,
+    }
 
 
 @app.post("/api/v1/operation/balance")
@@ -688,22 +719,58 @@ async def ussd_gateway(req: USSDRequest, db: Session = Depends(get_db)):
         
         # Execute operation
         if parsed_request.operation == "withdraw":
-            success, message, data = AccountOperations.withdraw(
-                db, account.account_id, parsed_request.phone_number,
-                Decimal(str(parsed_request.amount)), request_id
-            )
-            ussd_response = formatter.success_response(
+            if async_processor is None:
+                raise HTTPException(status_code=503, detail="Async processor is not initialized")
+
+            created = RequestIdempotency.create_request_entry(
+                db,
+                request_id,
+                account.account_id,
+                parsed_request.phone_number,
                 "withdraw",
-                message,
-                data
-            ) if success else formatter.error_response("withdraw", message)
+                {"amount": parsed_request.amount},
+                req.client_ip,
+            )
+
+            if created:
+                await async_processor.enqueue(
+                    OperationMessage(
+                        request_id=request_id,
+                        operation_type="withdraw",
+                        account_id=account.account_id,
+                        phone_number=parsed_request.phone_number,
+                        amount=Decimal(str(parsed_request.amount)),
+                    )
+                )
+            ussd_response = formatter.pending_response("withdraw")
+            success = True
             
         elif parsed_request.operation == "deposit":
-            success, message, data = AccountOperations.deposit(
-                db, account.account_id, parsed_request.phone_number,
-                Decimal(str(parsed_request.amount)), request_id
+            if async_processor is None:
+                raise HTTPException(status_code=503, detail="Async processor is not initialized")
+
+            created = RequestIdempotency.create_request_entry(
+                db,
+                request_id,
+                account.account_id,
+                parsed_request.phone_number,
+                "deposit",
+                {"amount": parsed_request.amount},
+                req.client_ip,
             )
+
+            if created:
+                await async_processor.enqueue(
+                    OperationMessage(
+                        request_id=request_id,
+                        operation_type="deposit",
+                        account_id=account.account_id,
+                        phone_number=parsed_request.phone_number,
+                        amount=Decimal(str(parsed_request.amount)),
+                    )
+                )
             ussd_response = formatter.pending_response("deposit")
+            success = True
             
         elif parsed_request.operation == "check_balance":
             success, message, data = AccountOperations.check_balance(
