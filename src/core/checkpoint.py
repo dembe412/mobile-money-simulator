@@ -20,6 +20,9 @@ class Checkpoint:
     
     This enables efficient state recovery and reduces bandwidth by only syncing events
     after this checkpoint.
+    
+    Versioning: Tracks schema version for forward/backward compatibility
+    Last Withdraw: Optimization to compute balance = checkpoint + deposits - last_withdraw
     """
     balance: Decimal
     last_event_id: int
@@ -32,6 +35,15 @@ class Checkpoint:
     total_withdrawals: Decimal = Decimal(0)
     event_count: int = 0
     
+    # NEW: Schema versioning for forward/backward compatibility
+    version: str = "v1"
+    
+    # NEW: Track last withdrawal for bandwidth optimization
+    # Formula: current_balance = checkpoint_balance + deposits_since_checkpoint - last_withdraw_amount
+    last_withdraw_amount: Decimal = Decimal(0)
+    last_withdraw_event_id: int = 0
+    last_withdraw_timestamp: datetime = field(default_factory=datetime.utcnow)
+    
     def to_dict(self) -> Dict:
         """Serialize checkpoint to dictionary"""
         return {
@@ -43,6 +55,10 @@ class Checkpoint:
             "total_deposits": str(self.total_deposits),
             "total_withdrawals": str(self.total_withdrawals),
             "event_count": self.event_count,
+            "version": self.version,  # Include schema version
+            "last_withdraw_amount": str(self.last_withdraw_amount),  # For optimization
+            "last_withdraw_event_id": self.last_withdraw_event_id,  # For optimization
+            "last_withdraw_timestamp": self.last_withdraw_timestamp.isoformat(),  # For optimization
         }
     
     @staticmethod
@@ -57,6 +73,14 @@ class Checkpoint:
             total_deposits=Decimal(data.get("total_deposits", 0)),
             total_withdrawals=Decimal(data.get("total_withdrawals", 0)),
             event_count=data.get("event_count", 0),
+            version=data.get("version", "v1"),  # Load schema version with fallback
+            last_withdraw_amount=Decimal(data.get("last_withdraw_amount", 0)),  # Load with fallback
+            last_withdraw_event_id=data.get("last_withdraw_event_id", 0),  # Load with fallback
+            last_withdraw_timestamp=(
+                datetime.fromisoformat(data["last_withdraw_timestamp"])
+                if data.get("last_withdraw_timestamp")
+                else datetime.utcnow()
+            ),  # Load with fallback
         )
     
     def __repr__(self) -> str:
