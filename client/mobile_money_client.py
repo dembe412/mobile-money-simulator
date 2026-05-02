@@ -222,7 +222,7 @@ class MobileMoneyClient:
             
             return {
                 "success": False,
-                "message": response.get("detail", "Server discovery failed"),
+                "message": response.get("detail") or response.get("message") or "Server discovery failed",
                 "data": response
             }
             
