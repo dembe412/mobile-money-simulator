@@ -31,6 +31,7 @@ class TransactionEvent:
     - node_id: Which node originated this event
     - is_applied: Whether this event has been applied to local state
     - version: Schema version for forward/backward compatibility
+    - transaction_id: For coordinated commits (2PC), the transaction this event belongs to
     """
     event_id: int
     type: EventType
@@ -41,6 +42,7 @@ class TransactionEvent:
     request_id: str = ""  # For idempotency
     is_applied: bool = False
     version: str = "v1"  # Schema version (v1, v2, etc.) - for forward compatibility
+    transaction_id: str = ""  # For coordinated commits (2PC protocol)
     
     def to_dict(self) -> Dict:
         """Serialize event to dictionary"""
@@ -54,6 +56,7 @@ class TransactionEvent:
             "request_id": self.request_id,
             "is_applied": self.is_applied,
             "version": self.version,  # Include schema version
+            "transaction_id": self.transaction_id,
         }
     
     @staticmethod
@@ -69,6 +72,7 @@ class TransactionEvent:
             request_id=data.get("request_id", ""),
             is_applied=data.get("is_applied", False),
             version=data.get("version", "v1"),  # Load schema version with fallback
+            transaction_id=data.get("transaction_id", ""),
         )
     
     def __repr__(self) -> str:
