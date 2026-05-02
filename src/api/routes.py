@@ -7,7 +7,9 @@ from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional, Dict, Any
 import logging
+import os
 from decimal import Decimal
+from datetime import datetime
 
 from config.database import SessionLocal, get_db, init_db
 from config.settings import server_config, app_config, security_config, database_config, replication_config
@@ -20,7 +22,7 @@ from src.distributed.gossip import GossipNode
 from src.distributed.heartbeat_worker import HeartbeatWorker
 from src.distributed.replication_manager import ReplicationManager
 from src.distributed.discovery_registry import ServiceRegistry, DiscoveryWorker
-from src.core.events import EventStore
+from src.core.events import EventStore, create_account_created_event
 from src.core.wal import WriteAheadLog
 from src.core.quorum import QuorumConfig, QuorumWriter
 from src.core.conflict_resolver import ConflictResolver
@@ -110,6 +112,29 @@ class CreateAccountRequest(BaseModel):
 ussd_session_manager = USSDSessionManager()
 
 
+def _parse_bootstrap_peers(raw: str) -> Dict[str, Dict[str, Any]]:
+    """
+    Parse BOOTSTRAP_PEERS env var.
+    Format:
+      server_2@192.168.1.20:8002,server_3@192.168.1.21:8003
+    """
+    peers: Dict[str, Dict[str, Any]] = {}
+    if not raw:
+        return peers
+
+    for token in [t.strip() for t in raw.split(",") if t.strip()]:
+        try:
+            server_id, host_port = token.split("@", 1)
+            host, port_text = host_port.rsplit(":", 1)
+            peers[server_id.strip()] = {
+                "host": host.strip(),
+                "port": int(port_text.strip()),
+            }
+        except Exception:
+            logger.warning(f"Invalid BOOTSTRAP_PEERS entry skipped: {token}")
+    return peers
+
+
 # ============================================
 # Startup & Shutdown
 # ============================================
@@ -133,16 +158,23 @@ async def startup_event():
         conflict_resolver = ConflictResolver()
         logger.info("✓ Event sourcing components initialized")
 
-        # 3. Gossip node — starts empty; discovery fills it
+        # 3. Gossip node — may start with static bootstrap peers
+        bootstrap_peers = _parse_bootstrap_peers(os.getenv("BOOTSTRAP_PEERS", ""))
+        bootstrap_peers.pop(server_config.SERVER_ID, None)
+
         gossip_node = GossipNode(
             server_id=server_config.SERVER_ID,
             host=server_config.SERVER_HOST,
             port=server_config.SERVER_PORT,
-            peer_servers={},          # <-- empty on purpose
+            peer_servers=bootstrap_peers,
             heartbeat_interval_sec=replication_config.HEARTBEAT_INTERVAL,
             heartbeat_timeout_sec=replication_config.PEER_TTL_SECONDS,
         )
-        logger.info("✓ Gossip node initialized (dynamic discovery active)")
+        logger.info(f"✓ Gossip node initialized (bootstrap_peers={len(bootstrap_peers)})")
+
+        for sid, peer in bootstrap_peers.items():
+            hash_ring.add_node(sid, peer["host"], peer["port"])
+            logger.info(f"[Route] Bootstrap peer added to hash ring: {sid} @ {peer['host']}:{peer['port']}")
 
         # 4. Quorum writer
         quorum_config = QuorumConfig(
@@ -323,6 +355,29 @@ async def create_account(req: CreateAccountRequest, db: Session = Depends(get_db
         
         db.add(account)
         db.commit()
+
+        # Event-sourcing: replicate account creation to peers
+        try:
+            if event_store and replication_manager and gossip_node:
+                request_id = (
+                    f"acct_create_{server_config.SERVER_ID}_"
+                    f"{account.account_id}_{int(datetime.utcnow().timestamp() * 1000)}"
+                )
+                event = create_account_created_event(
+                    account_id=account.account_id,
+                    request_id=request_id,
+                    initial_balance=Decimal(str(req.initial_balance)),
+                    server_id=server_config.SERVER_ID,
+                    vector_clock=gossip_node.vector_clock.copy(),
+                    phone_number=account.phone_number,
+                    account_holder_name=account.account_holder_name,
+                )
+                event_store.append(event)
+                event_store.mark_applied(event.event_id)
+                replication_manager.queue_event_for_replication(event)
+                gossip_node.increment_vector_clock()
+        except Exception as event_err:
+            logger.warning(f"Account-created event replication failed (continuing): {event_err}")
         
         logger.info(f"Account created: {req.phone_number}")
         return {

@@ -357,3 +357,31 @@ def create_transfer_in_event(
         phone_number=phone_number,
         account_holder_name=account_holder_name,
     )
+
+
+def create_account_created_event(
+    account_id: int,
+    request_id: str,
+    initial_balance: Decimal,
+    server_id: str,
+    vector_clock: Dict[str, int],
+    client_reference: Optional[str] = None,
+    phone_number: Optional[str] = None,
+    account_holder_name: Optional[str] = None,
+) -> Event:
+    """Factory function to create account-created event."""
+    return Event(
+        event_id=str(uuid.uuid4()),
+        event_type=EventType.ACCOUNT_CREATED,
+        account_id=account_id,
+        request_id=request_id,
+        amount=initial_balance,
+        balance_before=Decimal(0),
+        balance_after=initial_balance,
+        vector_clock=vector_clock,
+        server_id=server_id,
+        timestamp=datetime.utcnow(),
+        client_reference=client_reference,
+        phone_number=phone_number,
+        account_holder_name=account_holder_name,
+    )
