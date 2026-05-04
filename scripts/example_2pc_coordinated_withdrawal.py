@@ -4,6 +4,11 @@ Demonstrates how the 2PC protocol prevents inconsistency when nodes fail
 """
 from decimal import Decimal
 import logging
+import sys
+from pathlib import Path
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Setup logging
 logging.basicConfig(
@@ -68,8 +73,8 @@ def example_1_successful_coordinated_withdrawal():
     
     print_all_balances(system)
     
-    print("\n✓ All nodes successfully committed the withdrawal")
-    print("  Balance decreased on ALL replicas (consistent state)")
+    print("\n[OK] All nodes successfully committed the withdrawal")
+    print("     Balance decreased on ALL replicas (consistent state)")
 
 
 def example_2_insufficient_balance():
@@ -194,10 +199,10 @@ def example_4_failed_replica_recovery():
 def main():
     """Run all examples"""
     print("\n")
-    print("╔" + "="*68 + "╗")
-    print("║" + " "*10 + "TWO-PHASE COMMIT (2PC) COORDINATED WITHDRAWALS" + " "*12 + "║")
-    print("║" + " "*20 + "Preventing Distributed Inconsistency" + " "*12 + "║")
-    print("╚" + "="*68 + "╝")
+    print("=" * 70)
+    print(" " * 10 + "TWO-PHASE COMMIT (2PC) COORDINATED WITHDRAWALS")
+    print(" " * 20 + "Preventing Distributed Inconsistency")
+    print("=" * 70)
     
     print("\nProblem Statement:")
     print("-" * 70)

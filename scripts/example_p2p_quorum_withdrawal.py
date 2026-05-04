@@ -89,10 +89,10 @@ def example_1_p2p_any_node_can_withdraw():
     
     print_all_balances(system)
     
-    print("\n✓ All withdrawals succeeded (no bottleneck)")
-    print("  ✓ Each node acted as initiator")
-    print("  ✓ Quorum consensus achieved for each")
-    print("  ✓ All nodes reached consistent state")
+    print("\n[OK] All withdrawals succeeded (no bottleneck)")
+    print("     [OK] Each node acted as initiator")
+    print("     [OK] Quorum consensus achieved for each")
+    print("     [OK] All nodes reached consistent state")
 
 
 def example_2_quorum_voting():
@@ -131,9 +131,9 @@ def example_2_quorum_voting():
     
     # Show voting details (from quorum manager)
     if success:
-        print("\n✓ Quorum achieved!")
-        print(f"  All 3 votes ACCEPTED")
-        print(f"  Need 2, received 3 → PROCEED")
+        print("\n[OK] Quorum achieved!")
+        print(f"     All 3 votes ACCEPTED")
+        print(f"     Need 2, received 3 -> PROCEED")
 
 
 def example_3_resilience_one_node_offline():
@@ -160,7 +160,7 @@ def example_3_resilience_one_node_offline():
     # In real system, would simulate network partition
     # For now, we just show that 2/3 nodes can process
     print("\nnode_1 initiates withdrawal: 100")
-    print("Expected: node_1 (initiator) + node_2 (peer) = quorum of 2 ✓")
+    print("Expected: node_1 (initiator) + node_2 (peer) = quorum of 2 [OK]")
     
     success, msg = system.nodes['node_1'].p2p_withdraw(
         amount=Decimal(100),
@@ -171,9 +171,9 @@ def example_3_resilience_one_node_offline():
     print(f"Message: {msg}")
     
     if success:
-        print("\n✓ Withdrawal succeeded despite node_3 being unreachable")
-        print("  Reason: Quorum (2) < total_nodes (3)")
-        print("  System is resilient to single node failure!")
+        print("\n[OK] Withdrawal succeeded despite node_3 being unreachable")
+        print("     Reason: Quorum (2) < total_nodes (3)")
+        print("     System is resilient to single node failure!")
     
     print_all_balances(system)
 
@@ -196,7 +196,8 @@ def example_4_consensus_comparison():
     
     for total, expected_q in scenarios:
         q = (total // 2) + 1
-        print(f"  {total} nodes → quorum = {q} ✓" if q == expected_q else f"  {total} nodes → quorum = {q} ✗")
+        status = "[OK]" if q == expected_q else "[NO]"
+        print(f"  {total} nodes -> quorum = {q} {status}")
     
     print("\nKey insight: Quorum intersection guarantee")
     print("  Any two quorums intersect!")
