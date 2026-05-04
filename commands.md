@@ -11,6 +11,7 @@ export SERVER_ID=server_1
 export SERVER_NAME="Server 1"
 export SERVER_HOST=10.176.230.225
 export SERVER_PORT=8001
+export BOOTSTRAP_PEERS="server_2@10.176.230.123:8001,server_3@10.176.230.191:8001"
 python main.py
 ```
 
@@ -23,6 +24,7 @@ export SERVER_ID=server_2
 export SERVER_NAME="Server 2"
 export SERVER_HOST=10.176.230.123
 export SERVER_PORT=8001
+export BOOTSTRAP_PEERS="server_1@10.176.230.225:8001,server_3@10.176.230.191:8001"
 python main.py
 ```
 
@@ -35,6 +37,7 @@ export SERVER_ID=server_3
 export SERVER_NAME="Server 3"
 export SERVER_HOST=10.176.230.191
 export SERVER_PORT=8001
+export BOOTSTRAP_PEERS="server_1@10.176.230.225:8001,server_2@10.176.230.123:8001"
 python main.py
 ```
 
