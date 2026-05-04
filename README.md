@@ -466,9 +466,42 @@ curl -X POST http://localhost:8001/api/v1/account/create \
   }'
 
 # Response (201 Created):
+```
+
+### 🔍 Auto-Discovery: Connect Without Hardcoded URLs
+
+**NEW!** The client automatically discovers and connects to the network without hardcoded URLs!
+
+#### Quick Start (One Command)
+
+```bash
+python start_system_autodiscovery.py
+```
+
+#### How It Works
+
+1. ✓ Servers register themselves in `data/registry.db`
+2. ✓ Client queries registry to find active servers
+3. ✓ Client connects to all discovered servers automatically
+4. ✓ Ready to use!
+
+#### Learn More
+
+- [`QUICK_START_AUTODISCOVERY.md`](QUICK_START_AUTODISCOVERY.md) - 5-minute setup guide
+- [`AUTO_DISCOVERY_GUIDE.md`](AUTO_DISCOVERY_GUIDE.md) - Complete documentation
+- [`IMPLEMENTATION_AUTO_DISCOVERY.md`](IMPLEMENTATION_AUTO_DISCOVERY.md) - Technical details
+
+#### Process Orchestration
+
+Start dependent services after network discovery:
+
+```bash
+python process_orchestration_example.py
+```
+
+```
 {
   "account_id": 1,
-  "phone_number": "0751234567",
   "account_holder_name": "John Doe",
   "balance": 10000.0,
   "created_at": "2026-04-19T10:00:00",

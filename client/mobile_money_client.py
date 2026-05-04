@@ -11,6 +11,7 @@ from typing import Dict, Optional, Tuple, List
 from datetime import datetime
 import logging
 from urllib.parse import urljoin
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +57,9 @@ class MobileMoneyClient:
         server_urls: Optional[List[str]] = None,
         api_key: str = "default-api-key",
         secret_key: str = "secret-key",
-        timeout: int = 10
+        timeout: int = 10,
+        use_discovery: bool = False,
+        registry_db_path: Optional[Path] = None
     ):
         """
         Initialize client
@@ -67,8 +70,20 @@ class MobileMoneyClient:
             api_key: API key for requests
             secret_key: Secret key for signing
             timeout: Request timeout in seconds
+            use_discovery: If True, auto-discover servers from registry (requires registry_db_path)
+            registry_db_path: Path to the registry.db file for discovery
         """
-        if base_url:
+        self.api_key = api_key
+        self.secret_key = secret_key
+        self.timeout = timeout
+        self.current_server_idx = 0
+        self.discovery = None
+        
+        # Initialize with discovery if requested
+        if use_discovery:
+            self._init_discovery(registry_db_path)
+            self.server_urls = self.discovery.discover()
+        elif base_url:
             self.server_urls = [base_url]
         else:
             self.server_urls = server_urls or [
@@ -76,10 +91,24 @@ class MobileMoneyClient:
                 "http://localhost:8002",
                 "http://localhost:8003"
             ]
-        self.api_key = api_key
-        self.secret_key = secret_key
-        self.timeout = timeout
-        self.current_server_idx = 0
+    
+    def _init_discovery(self, registry_db_path: Optional[Path] = None):
+        """Initialize service discovery"""
+        try:
+            from src.distributed.client_discovery import ClientServiceDiscovery
+            
+            # Determine registry path
+            if registry_db_path is None:
+                project_root = Path(__file__).parent.parent.parent
+                registry_db_path = project_root / "data" / "registry.db"
+            
+            self.discovery = ClientServiceDiscovery(registry_db_path)
+            logger.info(f"Service discovery initialized with registry: {registry_db_path}")
+        except ImportError:
+            logger.warning("ClientServiceDiscovery not available, skipping discovery initialization")
+        except Exception as e:
+            logger.error(f"Failed to initialize discovery: {e}")
+            raise
     
     def _get_headers(self, request_id: str, signature: str) -> Dict:
         """Build request headers with authentication"""
@@ -169,6 +198,31 @@ class MobileMoneyClient:
     def _rotate_server(self):
         """Rotate to next server"""
         self.current_server_idx = (self.current_server_idx + 1) % len(self.server_urls)
+    
+    def enable_discovery(self, registry_db_path: Optional[Path] = None, wait_for_servers: bool = False):
+        """
+        Enable service discovery for this client
+        
+        Args:
+            registry_db_path: Path to registry.db file
+            wait_for_servers: If True, wait for at least one server to become available
+        """
+        self._init_discovery(registry_db_path)
+        
+        if wait_for_servers:
+            logger.info("Waiting for servers to become available...")
+            self.server_urls = self.discovery.wait_for_servers(min_servers=1, max_wait_seconds=30)
+        else:
+            self.server_urls = self.discovery.discover()
+    
+    def refresh_servers(self):
+        """Refresh the list of available servers if discovery is enabled"""
+        if self.discovery:
+            try:
+                self.server_urls = self.discovery.discover()
+                logger.info(f"Server list refreshed: {self.server_urls}")
+            except Exception as e:
+                logger.warning(f"Failed to refresh servers: {e}")
     
     def discover_server(self, phone_number: str) -> Dict:
         """

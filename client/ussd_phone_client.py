@@ -85,7 +85,7 @@ Enter choice (0-5):
 Enter choice (1-4):
 """
     
-    def __init__(self, phone_number: str = None, server_url: str = None, server_urls: List[str] = None):
+    def __init__(self, phone_number: str = None, server_url: str = None, server_urls: List[str] = None, use_discovery: bool = False):
         """
         Initialize USSD phone client
         
@@ -93,14 +93,21 @@ Enter choice (1-4):
             phone_number: User's phone number (default: interactive input)
             server_url: Single server base URL (optional, for backward compatibility)
             server_urls: List of server URLs to try (default: [localhost:8001, 8002, 8003])
+            use_discovery: If True, auto-discover servers from registry
         """
         self.phone_number = phone_number or self._prompt("Enter your phone number: ")
         
-        # Use server_urls list, or fall back to single server_url, or use defaults
-        if server_urls:
+        # Initialize RPC client with appropriate server configuration
+        if use_discovery:
+            # Client will use service discovery
+            self.client = MobileMoneyClient(use_discovery=True)
+            self.server_urls = self.client.server_urls
+        elif server_urls:
             self.server_urls = server_urls
+            self.client = MobileMoneyClient(server_urls=self.server_urls)
         elif server_url:
             self.server_urls = [server_url]
+            self.client = MobileMoneyClient(base_url=server_url)
         else:
             # Default to all available servers for discovery
             self.server_urls = [
@@ -108,9 +115,7 @@ Enter choice (1-4):
                 "http://localhost:8002",
                 "http://localhost:8003"
             ]
-        
-        # Initialize RPC client with server list for automatic failover
-        self.client = MobileMoneyClient(server_urls=self.server_urls)
+            self.client = MobileMoneyClient(server_urls=self.server_urls)
         
         # Session management
         self.sessions: Dict[str, USSDPhoneSession] = {}
