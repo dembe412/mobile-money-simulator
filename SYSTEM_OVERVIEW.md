@@ -44,7 +44,7 @@ Result: 4/4 tests passed
 ### 30-Second Test
 ```bash
 cd d:\mobile-money-simulator
-python scripts/example_p2p_quorum_withdrawal.py
+python scripts/interactive_client.py
 ```
 You'll see a 3-node distributed system with quorum voting and consistent balances.
 
@@ -328,7 +328,8 @@ assert converged
 - And more...
 
 #### Examples & Tests
-- `scripts/example_p2p_quorum_withdrawal.py` (220 lines) - 4 runnable scenarios
+- `scripts/interactive_client.py` - Interactive API client
+- `client/ussd_phone_client.py` - Interactive USSD client
 - `tests/test_p2p_quorum_simple.py` (130 lines) - 11 comprehensive test cases
 
 ### Test Results
@@ -376,7 +377,7 @@ tests/test_p2p_quorum_simple.py::TestP2PSystemSetup::test_nodes_have_quorum_mana
 ### Option 1: Quick Example (30 seconds)
 ```powershell
 cd d:\mobile-money-simulator
-python scripts/example_p2p_quorum_withdrawal.py
+python scripts/interactive_client.py
 ```
 
 ### Option 2: Run All Tests (5 minutes)
@@ -392,12 +393,7 @@ Tests:
 
 ### Option 3: Run Stress Tests (30 seconds)
 ```powershell
-python scripts/stress_test_event_sourcing.py
-```
-
-### Option 4: Verify Replication
-```powershell
-python scripts/verify_replication.py
+python -m pytest tests/test_ussd_sessions.py -v
 ```
 
 ---
@@ -584,7 +580,7 @@ python -m pip install -r requirements.txt
 
 **Solution:**
 - Wait a few seconds for gossip to propagate
-- Or run `python scripts/verify_replication.py`
+- Or run `python -m pytest tests/test_p2p_quorum_simple.py -v`
 
 ---
 
@@ -638,7 +634,7 @@ Total: ~1 network round trip + async gossip
 
 1. **Quick Verification (2 min):**
    ```powershell
-   python scripts/example_p2p_quorum_withdrawal.py
+  python scripts/interactive_client.py
    ```
 
 2. **Run All Tests (5 min):**
@@ -654,9 +650,9 @@ Total: ~1 network round trip + async gossip
    - See system continue working ✓
 
 4. **Explore Code:**
-   - Core logic: `src/core/`
-   - Tests: `tests/`
-   - Examples: `scripts/`
+  - Core logic: `src/core/`
+  - Tests: `tests/`
+  - Clients: `scripts/` and `client/`
 
 ---
 
@@ -674,11 +670,8 @@ Total: ~1 network round trip + async gossip
 ### Examples
 | File | Purpose |
 |------|---------|
-| `scripts/example_p2p_quorum_withdrawal.py` | 4 scenarios |
-| `scripts/example_event_sourcing.py` | Event sourcing demo |
-| `scripts/example_2pc_coordinated_withdrawal.py` | 2PC demo |
 | `scripts/interactive_client.py` | Interactive testing |
-| `scripts/verify_replication.py` | Replication verification |
+| `client/ussd_phone_client.py` | Interactive USSD client |
 
 ### Tests
 | File | Purpose |
@@ -718,5 +711,5 @@ Your distributed mobile money system is **FULLY FUNCTIONAL** and **PRODUCTION-RE
 - See system recover
 - Scale to multiple nodes
 
-**START HERE:** `python scripts/example_p2p_quorum_withdrawal.py`
+**START HERE:** `python scripts/interactive_client.py`
 
