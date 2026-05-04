@@ -2,6 +2,20 @@
 
 A production-ready **distributed mobile money system** that simulates real-world payment infrastructure like M-Pesa. Built with Python, FastAPI, and PostgreSQL, it implements cutting-edge distributed systems patterns to handle millions of concurrent transactions across multiple servers while maintaining data consistency and preventing financial fraud.
 
+## Group 10 Members
+
+| Name | Registration Number |
+| --- | --- |
+| DEMBE BRANDON | 2024/BSE/055/PS |
+| KISUULE ISAAC | 2024/BSE/088/PS |
+| LUTALO STEVEN | 2024/BSE/094/PS |
+| EGESSA SAMUEL | 2024/BSE/058/PS |
+| MUTASA ELIZABETH | 2024/BSE/120/PS |
+| TINO TRACY JOYCE | 2024/BSE/180/PS |
+| MUNIRU MAGANDA | 2024/BSE/072/PS |
+| MURUNGI FRANCIS | 2024/BSE/115/PS |
+| MUKAMA TALEMWA DAVID | 2024/BSE/088/112/PS |
+
 ## 📋 What This System Solves
 
 This system addresses critical challenges in building **fault-tolerant financial platforms**:
